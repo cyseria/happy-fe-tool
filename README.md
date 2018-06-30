@@ -9,6 +9,7 @@
 fe-tool fecs-hook --level 2
 ```
 
+
 然后脚本会做的一些事
 
 - pre-commit 自动拷贝到当前项目下的 .git/hooks/
