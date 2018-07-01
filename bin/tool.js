@@ -5,7 +5,7 @@
  * @author Cyseria <xcyseria@gmail.com>
  * @created time: 2018-06-28 00:07:40
  * @last modified by: Cyseria
- * @last modified time: 2018-06-28 00:28:04
+ * @last modified time: 2018-07-01 18:39:05
  */
 
 const program = require('commander');
@@ -18,10 +18,10 @@ program.version(pkg.version, '-v, --version');
 program
     .command('fecs-hook [command]')
     .description('fecs git hook')
-    .option('-l, --level')
-    .action(function (command) {
-        console.log(command)
-        require('./fecs')(command);
+    .option('-l, --level [mode]', 'Which level  to use')
+    .action(function (command, options) {
+        const level = options.level || 2;
+        require('./fecs')(command, level);
     });
 
 program.parse(process.argv);

@@ -25,6 +25,7 @@
     "commander": "^2.15.1"
   },
   "devDependencies": {
-    "cz-customizable": "^5.2.0"
+    "cz-customizable": "^5.2.0",
+    "fecs": "^1.5.5"
   }
 }
