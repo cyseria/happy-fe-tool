@@ -5,7 +5,7 @@
  * @author Cyseria <xcyseria@gmail.com>
  * @created time: 2018-06-28 00:07:40
  * @last modified by: Cyseria
- * @last modified time: 2018-07-01 18:39:05
+ * @last modified time: 2018-07-01 18:41:58
  */
 
 const program = require('commander');

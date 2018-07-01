@@ -3,7 +3,7 @@
  * @author Cyseria <xcyseria@gmail.com>
  * @created time: 2018-07-01 18:28:34
  * @last modified by: Cyseria
- * @last modified time: 2018-07-01 18:31:57
+ * @last modified time: 2018-07-01 18:43:44
  */
 
 const Path = require('path');
@@ -57,7 +57,9 @@ exports.installHooks = function (hooks, root) {
             Fs.renameSync(dest, dest + '.backup');
         }
 
-        Fs.writeFileSync(dest, Fs.readFileSync(source), { mode: 511 });
+        Fs.writeFileSync(dest, Fs.readFileSync(source), {
+            mode: 511
+        });
     }
 };
 
@@ -100,7 +102,7 @@ exports.findGitRoot = function (start) {
     if (exports.isDir(Path.join(start, '.git'))) {
         root = start;
     }
-    /* $lab:coverage:off$ */
+    // $lab:coverage:off$
     // Coverage disabled here due to false positive on else if, since we have to trap the throwWarn method
     else if (Path.dirname(start) !== start) {
         root = exports.findGitRoot(Path.dirname(start));
@@ -108,20 +110,20 @@ exports.findGitRoot = function (start) {
     else {
         return internals.throwWarn('Unable to find a .git directory for this project');
     }
-    /* $lab:coverage:on$ */
+    // $lab:coverage:on$
 
     return root;
 };
 
 
-/* $lab:coverage:off$ */
+// $lab:coverage:off$
 // Coverage disabled for this method because we use a child process to test it due to the process.exit() call
 internals.throwWarn = function (warning) {
 
     console.error('WARNING: ' + warning + ', installation aborted.');
     process.exit(0);
 };
-/* $lab:coverage:on$ */
+// $lab:coverage:on$
 
 // Find the topmost parent of the given module.
 internals.findParent = function (mod) {
@@ -182,10 +184,13 @@ internals.copyFile = function (source, target, options) {
         sourceContent = Fs.readFileSync(source);
     }
     catch (e) {
-        /* no source to copy */
+        // no source to copy
     }
 
-    Fs.writeFileSync(target, sourceContent, { flag: 'w', mode: mode });
+    Fs.writeFileSync(target, sourceContent, {
+        flag: 'w',
+        mode: mode
+    });
 };
 
 // Recursively copy a directory
