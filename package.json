@@ -1,6 +1,6 @@
 {
   "name": "happy-fe-tool",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "一系列 fe 工具集合",
   "main": "index.js",
   "bin": {
