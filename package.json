@@ -1,32 +1,37 @@
 {
-  "name": "happy-fe-tool",
-  "version": "1.0.1",
-  "description": "一系列 fe 工具集合",
-  "main": "index.js",
-  "bin": {
-    "happy": "./bin/tool.js"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/cyseria/happy-fe-tool.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/cyseria/happy-fe-tool/issues"
-  },
-  "homepage": "https://github.com/cyseria/happy-fe-tool#readme",
-  "dependencies": {
-    "chalk": "^2.4.1",
-    "commander": "^2.15.1",
-    "inquirer": "^6.2.0"
-  },
-  "devDependencies": {
-    "cz-customizable": "^5.2.0",
-    "fecs": "^1.5.5"
-  }
+    "name": "happy-fe-tool",
+    "version": "1.0.1",
+    "description": "一系列 fe 工具集合",
+    "main": "index.js",
+    "bin": {
+        "happy": "./bin/tool.js"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "commit": "git-cz"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/cyseria/happy-fe-tool.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/cyseria/happy-fe-tool/issues"
+    },
+    "homepage": "https://github.com/cyseria/happy-fe-tool#readme",
+    "dependencies": {
+        "chalk": "^2.4.1",
+        "commander": "^2.15.1",
+        "execa": "^1.0.0",
+        "fs-extra": "^7.0.0",
+        "inquirer": "^6.2.0",
+        "ora": "^3.0.0"
+    },
+    "devDependencies": {
+        "commitizen": "^2.10.1",
+        "cz-customizable": "^5.2.0",
+        "fecs": "^1.5.5"
+    }
 }

@@ -18,7 +18,7 @@ exports.ruleTmp = {
 exports.types = {
     baidu: {
         prettier: path.resolve(__dirname, './templates/baidu/.prettierrc.js'),
-        commitizen: true,
+        commitizen: 'cz-customizable',
         commitlint: false,
         changelog: true,
         codelint: 'fecs',

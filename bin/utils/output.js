@@ -7,11 +7,12 @@ const chalk = require('chalk');
 
 module.exports = {
     handleErr(err) {
-        console.log(chalk.red(err));
+        console.log(chalk.red('[error] ' + err));
         process.exit(1);
     },
     handleInfo(info) {
-        console.log(chalk.yellow(info));
+        console.log(chalk.yellow('[warn] ' 
+        + info));
     },
     handleSec(info) {
         console.log(chalk.gray(info))
