@@ -12,5 +12,11 @@ module.exports = {
     },
     handleInfo(info) {
         console.log(chalk.yellow(info));
+    },
+    handleSec(info) {
+        console.log(chalk.gray(info))
+    },
+    handleSuccess(info) {
+        console.log(chalk.green(info))
     }
 };

@@ -5,14 +5,17 @@
 
 const fs = require('fs');
 const path = require('path');
-const {handleErr, handleInfo} = require('../utils/output');
+const {types} = require('../config');
+const {handleErr, handleSuccess} = require('../utils/output');
 const copyFile = require('../utils/copy');
 
-module.exports = async function(sourcePath) {
+module.exports = async function(type, name) {
     try {
-        /* default use baidu config */
-        if (!sourcePath) {
-            const defaultConf = 'baidu';
+        let sourcePath = '';
+        const file = types[type][name];
+        if (typeof file === 'string') {
+            sourcePath = path.resolve(__dirname, './templates', type, file);
+        } else {
             // confugyration file, see https://prettier.io/docs/en/configuration.html
             const supportConfFile = [
                 '.prettierrc.yaml',
@@ -22,12 +25,13 @@ module.exports = async function(sourcePath) {
                 'prettier.config.js',
                 '.prettierrc.js'
             ];
+            // prettier: true, 自动查找响应的配置, 兼容处理
             const existsConf = supportConfFile.filter(item => {
-                const tmpPath = path.resolve(__dirname, '../templates', defaultConf, item);
+                const tmpPath = path.resolve(__dirname, '../templates', type, item);
                 return fs.existsSync(tmpPath);
             });
             if (existsConf.length === 0) {
-                handleErr(`没有找到默认的配置文件`);
+                handleErr(`没有在 ${type} 中找到配置文件`);
                 exit(1);
             }
             sourcePath = path.resolve(__dirname, '../templates', defaultConf, existsConf[0]);
@@ -37,7 +41,7 @@ module.exports = async function(sourcePath) {
         const targetPath = path.resolve(process.cwd(), fileName);
         await copyFile(sourcePath, targetPath);
 
-        handleInfo('✨ prettier 配置安装完成, 请配合编辑器食用~');
+        handleSuccess('✨ prettier 配置添加完毕, 请配合编辑器食用~');
     } catch (err) {
         handleErr(err);
         process.exit(1);
