@@ -4,7 +4,7 @@
   "description": "一系列 fe 工具集合",
   "main": "index.js",
   "bin": {
-    "fe-tool": "./bin/tool.js"
+    "happy": "./bin/tool.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -22,7 +22,8 @@
   "homepage": "https://github.com/cyseria/happy-fe-tool#readme",
   "dependencies": {
     "chalk": "^2.4.1",
-    "commander": "^2.15.1"
+    "commander": "^2.15.1",
+    "inquirer": "^6.2.0"
   },
   "devDependencies": {
     "cz-customizable": "^5.2.0",

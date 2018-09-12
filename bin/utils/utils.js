@@ -1,9 +1,9 @@
 /**
- * @file copy from fecs-git-hook
+ * @file edit from fecs-git-hook
  * @author Cyseria <xcyseria@gmail.com>
  * @created time: 2018-07-01 18:28:34
  * @last modified by: Cyseria
- * @last modified time: 2018-07-01 18:43:44
+ * @last modified time: 2018-07-01 18:58:41
  */
 
 const Path = require('path');
@@ -41,6 +41,7 @@ exports.copy = function (source, target, options) {
 exports.installHooks = function (hooks, root) {
     hooks = Array.isArray(hooks) ? hooks : [hooks];
     const gitRoot = exports.findGitRoot(root);
+    console.log(gitRoot)
     const hookRoot = Path.join(gitRoot, '.git', 'hooks');
 
     const source = Path.resolve(__dirname, '..', 'hooks', 'pre-commit');

@@ -1,5 +1,10 @@
 {
-    "files.exclude": {
-        "**/.git": false
-    },
+  "fileheader.custom": {
+    "author": "cyseria",
+    "email": "xcyseria@gmail.com",
+    "saveTime": 10
+  },
+  "files.exclude": {
+    "**/.git": false
+  }
 }
