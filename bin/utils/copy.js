@@ -1,23 +1,37 @@
 /**
- * @file copy
+ * @file copy file
  * @author Cyseria <xcyseria@gmail.com>
  */
 
-module.exports = function() {
-  return new Promise(resolve => {
-    const read = fs.createReadStream(source);
-    source.on("error", err => {
-      throw err;
-    });
+const fs = require('fs');
+const path = require('path');
+const inquirer = require('inquirer');
 
-    const write = fs.createWriteStream(to);
-    write.on("error", err => {
-      throw err;
-    });
-    write.on("finish", () => {
-      resolve();
-    });
-
-    read.pipe(write);
-  });
+module.exports = async function(source, target) {
+    const rd = fs.createReadStream(source);
+    const wr = fs.createWriteStream(target);
+    try {
+        if (fs.existsSync(target)) {
+            const confirm = await inquirer.prompt([
+                {
+                    type: 'confirm',
+                    name: 'cover',
+                    message: `文件 ${path.basename(target)} 已存在, 是否覆盖?`
+                }
+            ]);
+            if (!confirm.cover) {
+              process.exit(0);
+            }
+        }
+        return await new Promise(function(resolve, reject) {
+            rd.on('error', reject);
+            wr.on('error', reject);
+            wr.on('finish', resolve);
+            rd.pipe(wr);
+        });
+    } catch (error) {
+        rd.destroy();
+        wr.end();
+        throw error;
+    }
 };
