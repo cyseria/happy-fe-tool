@@ -7,7 +7,7 @@ exports.ruleTmp = {
     commitlint: false,
     changelog: true,
     codelint: {
-        type: 'fecs',
+        name: ['fecs', 'eslint'],
         hooks: 'pre-commit'
     },
     test: {
@@ -17,13 +17,13 @@ exports.ruleTmp = {
 };
 
 exports.types = {
-    baidu: {
+    baidu: { // baidu fe 规范
         nvm: true,
         prettier: path.resolve(__dirname, './templates/baidu/.prettierrc.js'),
         commitizen: 'cz-customizable',
         commitlint: false,
         codelint: {
-            type: 'fecs',
+            name: 'fecs',
             hooks: 'pre-commit'
         },
         changelog: true,
@@ -32,11 +32,11 @@ exports.types = {
             hooks: 'pre-push'
         }
     },
+    simple: { // 给其他语言用的
+        commitizen: true
+    },
     angular: {
         prettier: '',
         commitizen: true
     },
-    aaa: {
-        commitizen: true
-    }
 };

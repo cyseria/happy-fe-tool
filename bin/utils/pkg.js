@@ -3,7 +3,6 @@
  * @author Cyseria <xcyseria@gmail.com>
  */
 
-// const fs = require('fs');
 const fs = require('fs-extra');
 const path = require('path');
 const ora = require('ora');
@@ -17,16 +16,18 @@ const {handleErr, handleInfo, handleSuccess} = require('./output');
  */
 exports.installPkg = async function(module, exclusive) {
     try {
-        if (Array.isArray(module)) {
-            module = module.join(' ');
+        const installModule = getInstallModule(module);
+        if(installModule.length === 0) {
+            return;
         }
         if (!exclusive) {
             exclusive = '-D';
         }
+        const installStr = installModule.join(' ');
         exports.pkgUp();
-        const spinner = ora(`install package ${module}, please wait a min...`).start();
-        await execa.shellSync(`npm install ${module} ${exclusive}`);
-        spinner.succeed(`add ${module} success`);
+        const spinner = ora(`install package ${installStr}, please wait a min...`).start();
+        await execa.shellSync(`npm install ${installStr} ${exclusive}`);
+        spinner.succeed(`add package ${installStr} success`);
     } catch (error) {
         handleErr(error);
     }
@@ -40,7 +41,7 @@ exports.uninstallPkg = async function(module, isdev) {
 };
 
 /**
- * 检测 package.json 是否存在的
+ * 检测 package.json 是否存在的, 如果不存在就创建一个
  * TODO: 递归查找父级
  */
 exports.pkgUp = async function() {
@@ -64,13 +65,81 @@ exports.editPkg = function(type, key, value) {
     }
 
     const conf = pkgObj[type];
-    // 如果已经存在该 key 且没该 value, 在后面加上 && xxx
     if (!!conf[key]) {
-        const scriptArr = conf[key].split('&&');
-        conf[key] = scriptArr.includes(value) ? conf[key] : conf[key] + ' && ' + value;
+        const oldScriptArr = conf[key].split('&&');
+        const newScriptArr = value.split('&&');
+        conf[key] = concatAndUniqueArr(oldScriptArr, newScriptArr).join(' && ');
     } else {
         conf[key] = value;
     }
-    
+
     fs.writeJsonSync(pkgPath, pkgObj, {spaces: 4});
 };
+exports.addHooks = function(hook, script) {
+    const pkgPath = path.resolve(process.cwd(), 'package.json');
+    const pkgObj = fs.readJsonSync(pkgPath);
+
+    if (!pkgObj['husky']) {
+        pkgObj['husky'] = {};
+    }
+    const husky = pkgObj['husky'];
+
+    if (!husky['hooks']) {
+        husky['hooks'] = {};
+    }
+    const hooks = husky['hooks'];
+
+    // 如果已经存在该 key 且没该 value, 在后面加上 && xxx
+    if (!!hooks[hook]) {
+        const scriptArr = hooks[hook].split('&&');
+        hooks[hook] = scriptArr.includes(script) ? hooks[hook] : hooks[hook] + ' && ' + script;
+    } else {
+        hooks[hook] = script;
+    }
+
+    fs.writeJsonSync(pkgPath, pkgObj, {spaces: 4});
+};
+
+/**
+ * 合并数组并去重
+ * @param {Array} arr1
+ * @param {Array} arr2
+ */
+function concatAndUniqueArr(arr1, arr2) {
+    const concatArr = [...arr1, ...arr2];
+    const arr = concatArr.map(item => item.replace(/^\s+|\s+$/g,"")); // 去除前后空格
+    const set = new Set(arr);
+    return Array.from(set);
+}
+
+/**
+ * 判断是否存在模块, 检查 devDependencies 和 dependencies 字段
+ * @param {string|Array} name - 模块名称
+ * @return {Array} 需要安装的 module
+ */
+function getInstallModule(moduleName) {
+    const pkgPath = path.resolve(process.cwd(), 'package.json');
+    const pkgObj = fs.readJsonSync(pkgPath);
+    const checkArr = ['devDependencies', 'dependencies'];
+
+    const needInstallModule = [];
+    if (Array.isArray(moduleName)) {
+        moduleName.map(item => {
+            if (!isRepeat(item)) {
+                needInstallModule.push(item);
+            }
+        })
+    } else if (typeof moduleName === 'string' && !isRepeat(moduleName)){
+        needInstallModule.push(moduleName);
+    }
+
+    return needInstallModule;
+    function isRepeat(module) {
+        return checkArr.some(item => {
+            if (Object.prototype.hasOwnProperty.call(pkgObj, item)) {
+                return Object.keys(pkgObj[item]).includes(module);
+            }
+            return false;
+        });
+    }
+}

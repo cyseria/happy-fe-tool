@@ -1,0 +1,3 @@
+{
+    "*.{js, scss, css, html}": "fecs check --level 2"
+}

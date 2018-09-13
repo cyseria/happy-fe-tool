@@ -1,0 +1,10 @@
+{
+    "eslint": {
+        "rules": {
+            "fecs-valid-jsdoc": "off",
+            "fecs-export-on-declare": "off",
+            "fecs-min-vars-per-destructure": "off",
+            "fecs-no-require": "off"
+        }
+    }
+}
