@@ -18,13 +18,14 @@ const supportConfFile = [
     'prettier.config.js',
     '.prettierrc.js'
 ];
-module.exports = async function(type, name) {
+module.exports = async (type, name) => {
     try {
         let sourcePath = '';
         const file = types[type][name];
         if (typeof file === 'string') {
             sourcePath = path.resolve(__dirname, './templates', type, file);
-        } else {
+        }
+        else {
             // prettier: true, 自动查找响应的配置, 兼容处理
             const existsConf = supportConfFile.filter(item => {
                 const tmpPath = path.resolve(__dirname, '../templates', type, item);
@@ -32,9 +33,10 @@ module.exports = async function(type, name) {
             });
             if (existsConf.length === 0) {
                 handleErr(`没有在 ${type} 中找到 ${name} 的配置文件`);
-                exit(1);
+                process.exit(1);
             }
-            sourcePath = path.resolve(__dirname, '../templates', defaultConf, existsConf[0]);
+
+            sourcePath = path.resolve(__dirname, '../templates', type, existsConf[0]);
         }
 
         const fileName = path.basename(sourcePath);
@@ -42,7 +44,8 @@ module.exports = async function(type, name) {
         await copyFile(sourcePath, targetPath);
 
         handleSuccess('✨ prettier 配置添加完毕, 请配合编辑器食用~');
-    } catch (err) {
+    }
+    catch (err) {
         handleErr(err);
         process.exit(1);
     }

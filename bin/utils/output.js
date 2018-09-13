@@ -11,13 +11,13 @@ module.exports = {
         process.exit(1);
     },
     handleInfo(info) {
-        console.log(chalk.yellow('[warn] ' 
-        + info));
+        console.log(chalk.yellow('[warn] '
+            + info));
     },
     handleSec(info) {
-        console.log(chalk.gray(info))
+        console.log(chalk.gray(info));
     },
     handleSuccess(info) {
-        console.log(chalk.green(info))
+        console.log(chalk.green(info));
     }
 };

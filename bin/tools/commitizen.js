@@ -17,11 +17,12 @@ const supportConf = {
         'cz-customizable': '.cz-config.js'
     }
 };
+
 /**
  * 安装 commitizen, 和对应规则
  * @param {string} adapters - see https://github.com/commitizen/cz-cli#adapters
  */
-module.exports = async function(type, name) {
+module.exports = async (type, name) => {
     try {
         const adapters = types[type][name];
 
@@ -31,31 +32,33 @@ module.exports = async function(type, name) {
                 type: 'list',
                 name: 'adapter',
                 message: 'choose a adapters for commitizen: ',
-                choices: ruleTmp['commitizen'],
+                choices: ruleTmp.commitizen,
                 when() {
-                    return !adapters || !ruleTmp['commitizen'].includes(adapters);
+                    return !adapters || !ruleTmp.commitizen.includes(adapters);
                 }
             }
         ]);
         const adapter = userInput.adapter || adapters;
 
         // install commitizen, adapter and copy there config to root dir
-        const cliConfPath = path.resolve(__dirname, '../templates', type, supportConf['cli']);
-        const adapterConfPath = path.resolve(__dirname, '../templates', type, supportConf['adapter'][adapter]);
+        const cliConfPath = path.resolve(__dirname, '../templates', type, supportConf.cli);
+        const adapterConfPath = path.resolve(__dirname, '../templates', type, supportConf.adapter[adapter]);
 
         if (!fs.existsSync(cliConfPath) || !fs.existsSync(adapterConfPath)) {
             handleErr(`没有在 ${type} 中找到 ${name} 的配置文件`);
-            exit(1);
+            process.exit(1);
         }
+
         await installPkg('commitizen');
         await installPkg(adapter);
-        await copyFile(cliConfPath, path.resolve(process.cwd(), supportConf['cli']));
-        await copyFile(adapterConfPath, path.resolve(process.cwd(), supportConf['adapter'][adapter]));
+        await copyFile(cliConfPath, path.resolve(process.cwd(), supportConf.cli));
+        await copyFile(adapterConfPath, path.resolve(process.cwd(), supportConf.adapter[adapter]));
 
         // add `npm run commit` in pkg
         editPkg('scripts', 'commit', 'git-cz');
 
-    } catch (err) {
+    }
+    catch (err) {
         handleErr(err);
         process.exit(1);
     }

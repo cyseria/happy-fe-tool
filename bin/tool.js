@@ -1,5 +1,6 @@
 #! /usr/bin/env node
 
+
 /**
  * @file 命令行入口文件
  * @author Cyseria <xcyseria@gmail.com>
@@ -39,6 +40,8 @@ program
             return Object.prototype.hasOwnProperty.call(types[item], ruleName);
         });
         const type = conf[1];
+
+        // eslint-disable-next-line
         const userInputType = await inquirer.prompt([
             {
                 type: 'list',
@@ -51,10 +54,11 @@ program
             }
         ]);
         const ruleType = userInputType.type || type;
+
         if (Object.keys(ruleTmp).includes(ruleName) && Object.keys(types).includes(ruleType)) {
-            const config = types[ruleType][ruleName];
-            require(`./tools/${ruleName}`)(config);
-        } else {
+            require(`./tools/${ruleName}`)(ruleType, ruleName);
+        }
+        else {
             output.handleErr('no such rules, please check it and try again...');
         }
     });
@@ -63,23 +67,23 @@ program
 program
     .command('remove [rule]')
     .description('remove single tool')
-    .action(function(rule, options) {});
+    .action(function (rule, options) {});
 
 // ls
 program
     .command('ls')
     .description('list rules')
-    .action(function(command, options) {});
+    .action(function (command, options) {});
 
 // 项目初始化
 program
     .command('lint [rules]')
     .description('fecs git hook')
-    .action(function(rules, options) {
+    .action(function (rules, options) {
         if (!!rules) {
             // default use bd
-            console.log('use ' + conf);
         }
+
     });
 
 program.parse(process.argv);

@@ -38,5 +38,5 @@ exports.types = {
     angular: {
         prettier: '',
         commitizen: true
-    },
+    }
 };
