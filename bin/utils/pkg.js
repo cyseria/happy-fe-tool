@@ -20,6 +20,7 @@ const {
  */
 exports.installPkg = async (module, exclusive, config) => {
     try {
+        exports.pkgUp();
         const installModule = getInstallModule(module);
         if (installModule.length === 0) {
             return;
@@ -30,13 +31,14 @@ exports.installPkg = async (module, exclusive, config) => {
         }
 
         const installStr = installModule.join(' ');
-        exports.pkgUp();
         const spinner = ora(`install package ${installStr}, please wait a min...`).start();
 
         let configStr = '';
         if (!!config) {
             for (let key in config) {
-                configStr += ` --${key}=${config[key]}`;
+                if (!!config[key]) {
+                    configStr += ` --${key}=${config[key]}`;
+                }
             }
         }
         await execa.shellSync(`npm install ${installStr} ${exclusive} ${configStr}`);

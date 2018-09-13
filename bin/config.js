@@ -6,7 +6,7 @@ exports.ruleTmp = {
     commitizen: ['cz-customizable', 'cz-conventional-changelog'], // commitizen 配置
     commitlint: false,
     changelog: {
-        name: ['angular', '@baidu/befe'],
+        preset: ['angular', '@baidu/befe'],
         hooks: ''
     },
     codelint: {
@@ -20,25 +20,26 @@ exports.ruleTmp = {
 };
 
 exports.types = {
-    baidu: { // baidu fe 规范
+    baidu: {
+        // baidu fe 规范
         nvm: true,
         prettier: path.resolve(__dirname, './templates/baidu/.prettierrc.js'),
         commitizen: 'cz-customizable',
-        commitlint: false,
         codelint: {
             name: 'fecs',
             hooks: 'pre-commit'
         },
         changelog: {
-            name: '@baidu/befe',
-            hooks: 'pre-push'
-        },
-        test: {
-            name: 'jest',
+            preset: {
+                name: '@baidu/befe',
+                dependency: '@baidu/conventional-changelog-befe',
+                registry: 'http://registry.npm.baidu-int.com'
+            },
             hooks: 'pre-push'
         }
     },
-    simple: { // 给其他语言用的
+    simple: {
+        // 给其他语言用的
         commitizen: true
     },
     angular: {
