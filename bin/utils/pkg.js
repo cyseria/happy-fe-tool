@@ -18,7 +18,7 @@ const {
  * @param {string|Array} module - modulename
  * @param {Boolean} exclusive - 3 exclusive, optional flags which save or update the package version, eg. -S, -D, -O
  */
-exports.installPkg = async (module, exclusive) => {
+exports.installPkg = async (module, exclusive, config) => {
     try {
         const installModule = getInstallModule(module);
         if (installModule.length === 0) {
@@ -32,7 +32,14 @@ exports.installPkg = async (module, exclusive) => {
         const installStr = installModule.join(' ');
         exports.pkgUp();
         const spinner = ora(`install package ${installStr}, please wait a min...`).start();
-        await execa.shellSync(`npm install ${installStr} ${exclusive}`);
+
+        let configStr = '';
+        if (!!config) {
+            for (let key in config) {
+                configStr += ` --${key}=${config[key]}`;
+            }
+        }
+        await execa.shellSync(`npm install ${installStr} ${exclusive} ${configStr}`);
         spinner.succeed(`add package ${installStr} success`);
     }
     catch (error) {

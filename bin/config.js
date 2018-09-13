@@ -5,7 +5,10 @@ exports.ruleTmp = {
     prettier: '', // prettier 配置路径
     commitizen: ['cz-customizable', 'cz-conventional-changelog'], // commitizen 配置
     commitlint: false,
-    changelog: true,
+    changelog: {
+        name: ['angular', '@baidu/befe'],
+        hooks: ''
+    },
     codelint: {
         name: ['fecs', 'eslint'],
         hooks: 'pre-commit'
@@ -26,9 +29,12 @@ exports.types = {
             name: 'fecs',
             hooks: 'pre-commit'
         },
-        changelog: true,
+        changelog: {
+            name: '@baidu/befe',
+            hooks: 'pre-push'
+        },
         test: {
-            type: 'jest',
+            name: 'jest',
             hooks: 'pre-push'
         }
     },
