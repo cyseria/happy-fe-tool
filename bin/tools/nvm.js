@@ -6,19 +6,24 @@
 const fs = require('fs-extra');
 const path = require('path');
 const execa = require('execa');
-const {handleErr, handleInfo} = require('../utils/output');
+const {handleErr} = require('../utils/output');
 
-module.exports = async (type, name) => {
-    try {
-        // use current node version
-        const configFileName = '.nvmrc';
+/**
+ * 初始化 nvm
+ * @param {{name: string, content: string|Object}} rule - 规则相关的配置
+ * @param {string}} tplName - 使用的模板名称
+ */
+module.exports = async rule => {
+    // if no config, use current node version
+    let content = '';
+    if (!!rule.content) {
+        content = rule.content;
+    }
+    else {
         const {stdout} = await execa.shell('node -v');
-
-        const file = path.resolve(process.cwd(), configFileName);
-        fs.outputFileSync(file, stdout);
+        content = stdout;
     }
-    catch (err) {
-        handleErr(err);
-        process.exit(1);
-    }
+    const configFileName = '.nvmrc';
+    const file = path.resolve(process.cwd(), configFileName);
+    fs.outputFileSync(file, content);
 };

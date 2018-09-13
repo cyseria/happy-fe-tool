@@ -39,8 +39,10 @@ exports.installPkg = async (module, exclusive, config) => {
                 if (!!config[key]) {
                     configStr += ` --${key}=${config[key]}`;
                 }
+
             }
         }
+
         await execa.shellSync(`npm install ${installStr} ${exclusive} ${configStr}`);
         spinner.succeed(`add package ${installStr} success`);
     }
@@ -163,10 +165,13 @@ function getInstallModule(moduleName) {
     }
 
     return needInstallModule;
+
+    // 检查需要安装的 module 是否已经存在
     function isRepeat(module) {
+        const moduleWriteName = module.split('@')[0];
         return checkArr.some(item => {
             if (Object.prototype.hasOwnProperty.call(pkgObj, item)) {
-                return Object.keys(pkgObj[item]).includes(module);
+                return Object.keys(pkgObj[item]).includes(moduleWriteName);
             }
 
             return false;

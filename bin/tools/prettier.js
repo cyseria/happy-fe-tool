@@ -1,12 +1,9 @@
 /**
- * @file prettier.js, cmd: happy add prettier baidu
+ * @file prettier.js, cmd: happy add prettier -t baidu
  * @author Cyseria <xcyseria@gmail.com>
  */
 
-const fs = require('fs');
-const path = require('path');
-const {types} = require('../config');
-const {handleErr, handleSuccess} = require('../utils/output');
+const {getConfigFilePath, getConfigTargetPath} = require('../utils/configOpt');
 const copyFile = require('../utils/copy');
 
 // confugyration file, see https://prettier.io/docs/en/configuration.html
@@ -18,35 +15,14 @@ const supportConfFile = [
     'prettier.config.js',
     '.prettierrc.js'
 ];
-module.exports = async (type, name) => {
-    try {
-        let sourcePath = '';
-        const file = types[type][name];
-        if (typeof file === 'string') {
-            sourcePath = path.resolve(__dirname, './templates', type, file);
-        }
-        else {
-            // prettier: true, 自动查找响应的配置, 兼容处理
-            const existsConf = supportConfFile.filter(item => {
-                const tmpPath = path.resolve(__dirname, '../templates', type, item);
-                return fs.existsSync(tmpPath);
-            });
-            if (existsConf.length === 0) {
-                handleErr(`没有在 ${type} 中找到 ${name} 的配置文件`);
-                process.exit(1);
-            }
 
-            sourcePath = path.resolve(__dirname, '../templates', type, existsConf[0]);
-        }
-
-        const fileName = path.basename(sourcePath);
-        const targetPath = path.resolve(process.cwd(), fileName);
-        await copyFile(sourcePath, targetPath);
-
-        handleSuccess('✨ prettier 配置添加完毕, 请配合编辑器食用~');
-    }
-    catch (err) {
-        handleErr(err);
-        process.exit(1);
-    }
+/**
+ * 初始化 prettier
+ * @param {{name: string, content: string|Object}} rule - 规则相关的配置
+ * @param {string}} tplName - 使用的模板名称
+ */
+module.exports = async (rule, tplName) => {
+    const sourcePath = await getConfigFilePath(rule, tplName, supportConfFile);
+    const targetPath = getConfigTargetPath(sourcePath);
+    await copyFile(sourcePath, targetPath);
 };

@@ -3,37 +3,52 @@
  * @author Cyseria <xcyseria@gmail.com>
  */
 
-const {handleErr, handleInfo} = require('../utils/output');
-const {types} = require('../config');
-const {installPkg, editPkg, addHooks} = require('../utils/pkg');
-module.exports = async (type, name) => {
-    try {
-        const config = types[type][name];
+const {
+    installPkg,
+    editPkg,
+    addHooks
+} = require('../utils/pkg');
 
-        installPkg('conventional-changelog-cli');
+/**
+ * 安装 changelog 相关信息
+ * @param {{name: string, content: string|Object}} rule - 规则相关的配置
+ * @param {string}} tplName - 使用的模板名称
+ *
+ * @example
+ * rule = {
+ *      name: 'changelog',
+ *      content: {
+ *          preset: {
+ *              name: '@baidu/befe',
+ *              dependency: '@baidu/conventional-changelog-befe',
+ *              registry: 'http://registry.npm.baidu-int.com'
+ *          },
+ *          hooks: 'pre-push'
+ *      }
+ * }
+ */
+module.exports = async (rule, tplName) => {
+    installPkg('conventional-changelog-cli');
 
-        let presetName = '';
-        if (typeof config.preset === 'string') {
-            presetName = config.preset;
-        } else if (Object.prototype.toString.call(config.preset) === '[object Object]') {
-            const configPreset = config.preset;
-            presetName = configPreset[name];
-            if (!!configPreset.dependency) {
-                installPkg(configPreset.dependency, '', {
-                    registry: configPreset.registry || ''
-                });
-            }
-        }
-
-        editPkg(
-            'scripts',
-            'changelog',
-            `conventional-changelog -p ${presetName} -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md`
-        );
-        editPkg('scripts', 'version', 'npm run changelogd');
-        addHooks(config.hooks, 'npm run changelog');
-    } catch (err) {
-        handleErr(err);
-        process.exit(1);
+    const preset = rule.content.preset;
+    let presetName = '';
+    if (typeof preset === 'string') {
+        presetName = preset;
     }
+    else if (Object.prototype.toString.call(preset) === '[object Object]') {
+        presetName = preset.name;
+        if (!!preset.dependency) {
+            installPkg(preset.dependency, '', {
+                registry: preset.registry || ''
+            });
+        }
+    }
+
+    editPkg(
+        'scripts',
+        'changelog',
+        `conventional-changelog -p ${presetName} -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md`
+    );
+    editPkg('scripts', 'version', 'npm run changelogd');
+    addHooks(rule.content.hooks, 'npm run changelog');
 };

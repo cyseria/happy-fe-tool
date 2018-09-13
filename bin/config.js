@@ -1,5 +1,6 @@
 const path = require('path');
 
+// 仅供当做参考的配置格式, 没有地方使用
 exports.ruleTmp = {
     nvm: true,
     prettier: '', // prettier 配置路径
@@ -19,14 +20,17 @@ exports.ruleTmp = {
     }
 };
 
-exports.types = {
+// 实际使用配置
+exports.tpls = {
     baidu: {
         // baidu fe 规范
         nvm: true,
-        prettier: path.resolve(__dirname, './templates/baidu/.prettierrc.js'),
-        commitizen: 'cz-customizable',
+        prettier: '.prettierrc.js', // config file
+        commitizen: 'cz-customizable', // adapter, required
         codelint: {
-            name: 'fecs',
+            lintTool: 'fecs',
+            lintConfigFile: '.fecsrc',
+            lintStagedConfigFile: '.lintstagedrc',
             hooks: 'pre-commit'
         },
         changelog: {
@@ -40,10 +44,11 @@ exports.types = {
     },
     simple: {
         // 给其他语言用的
-        commitizen: true
+        commitizen: true,
+        prettier: '.prett'
     },
     angular: {
-        prettier: '',
-        commitizen: true
+        prettier: '.prettierrc.js',
+        commitizen: 'cz-conventional-changelog'
     }
 };

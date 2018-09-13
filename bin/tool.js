@@ -9,81 +9,88 @@
 const program = require('commander');
 const inquirer = require('inquirer');
 const pkg = require('../package.json');
-const output = require('./utils/output');
-const {ruleTmp, types} = require('./config');
+const {handleSuccess, handleInfo} = require('./utils/output');
+const {tpls} = require('./config');
 
 // 版本信息
 program.version(pkg.version, '-v, --version');
 
 // use
 program
-    .command('add [conf...]')
+    .command('add <rules...>')
     .description('add single tool')
-    .action(async conf => {
-        // get rule name
-        const name = conf[0];
-        const userInputName = await inquirer.prompt([
+    .option('-t, --tpl <tpl>', 'set a template')
+    .option('-y, --yes', 'use default template without any question')
+    .action(async (rules, cmd) => {
+        // get config tpl
+        // if set options -y, use default
+        // if set custom tpl by -t, use custom
+        // otherwise, let user choose from config tpls
+        const userInput = await inquirer.prompt([
             {
                 type: 'list',
-                name: 'name',
-                message: 'choose a rule: ',
-                choices: Object.keys(ruleTmp),
+                name: 'tpl',
+                message: 'choose a template: ',
+                choices: Object.keys(tpls), // todo: exsit key
                 when() {
-                    return !name;
+                    return !cmd.tpl && !cmd.yes;
                 }
             }
         ]);
-        const ruleName = userInputName.name || name;
+        let tpl = userInput.tpl || '';
+        if (!!cmd.tpl && Object.keys(tpls).includes(cmd.tpl)) {
+            tpl = cmd.tpl;
+        }
+        else if (!!cmd.tpl) {
+            handleInfo(
+                `can't find ${
+                cmd.tpl
+                } in config, please check and try again. 
+ use -y by default config, or use init and follow guide`
+            );
+        }
+        else if (!!cmd.yes) {
+            tpl = 'default';
+        }
 
-        // get rule type
-        const ruleTypes = Object.keys(types).filter(item => {
-            return Object.prototype.hasOwnProperty.call(types[item], ruleName);
+        const ruleConf = tpls[tpl];
+        const legalRules = [];
+        rules.map(rule => {
+            Object.keys(ruleConf).includes(rule) ? legalRules.push(rule) : handleInfo(`no rule "${rule}", skip it...`);
         });
-        const type = conf[1];
+        await Promise.all(
+            legalRules.map(rule => {
+                const ruleName = rule;
+                const ruleContent = ruleConf[rule];
+                const curRuleCfg = {name: ruleName, content: ruleContent};
+                return require(`./tools/${ruleName}`)(curRuleCfg, tpl);
+            })
+        );
+        handleSuccess(`✨ finish add rules: ${legalRules.join(', ')}`);
+    });
 
-        // eslint-disable-next-line
-        const userInputType = await inquirer.prompt([
-            {
-                type: 'list',
-                name: 'type',
-                message: 'choose a type: ',
-                choices: ruleTypes,
-                when() {
-                    return !type;
-                }
-            }
-        ]);
-        const ruleType = userInputType.type || type;
+// 项目初始化
+program
+    .command('init <tpl>')
+    .description('init project with templates rules')
+    .action((tpl, options) => {
+        // require(`./tools/${ruleName}`)(ruleType, ruleName);
 
-        if (Object.keys(ruleTmp).includes(ruleName) && Object.keys(types).includes(ruleType)) {
-            require(`./tools/${ruleName}`)(ruleType, ruleName);
-        }
-        else {
-            output.handleErr('no such rules, please check it and try again...');
-        }
+        console.log('ask for choose');
     });
 
 // remove
 program
     .command('remove [rule]')
     .description('remove single tool')
-    .action(function (rule, options) {});
+    .action((rule, options) => {
+    });
 
 // ls
 program
     .command('ls')
     .description('list rules')
-    .action(function (command, options) {});
-
-// 项目初始化
-program
-    .command('lint [rules]')
-    .description('fecs git hook')
-    .action(function (rules, options) {
-        if (!!rules) {
-            // default use bd
-        }
-
+    .action((command, options) => {
     });
 
 program.parse(process.argv);

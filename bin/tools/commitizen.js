@@ -3,63 +3,47 @@
  * @author Cyseria <xcyseria@gmail.com>
  */
 
-const fs = require('fs');
-const path = require('path');
 const inquirer = require('inquirer');
-const {ruleTmp, types} = require('../config');
-const {handleErr, handleInfo} = require('../utils/output');
 const {installPkg, editPkg} = require('../utils/pkg');
 const copyFile = require('../utils/copy');
+const {getConfigFilePath, getConfigTargetPath} = require('../utils/configOpt');
 
-const supportConf = {
-    cli: '.czrc',
-    adapter: {
-        'cz-customizable': '.cz-config.js'
-    }
+const cliConfigFile = '.czrc';
+const adapterConfigFile = {
+    'cz-customizable': '.cz-config.js'
 };
 
 /**
  * 安装 commitizen, 和对应规则
- * @param {string} adapters - see https://github.com/commitizen/cz-cli#adapters
+ * @param {{name: string, content: string|Object}} rule - 规则相关的配置
+ * @param {string}} tplName - 使用的模板名称
  */
-module.exports = async (type, name) => {
-    try {
-        const adapters = types[type][name];
-
-        // if commitizen config is error, let user choose
-        const userInput = await inquirer.prompt([
-            {
-                type: 'list',
-                name: 'adapter',
-                message: 'choose a adapters for commitizen: ',
-                choices: ruleTmp.commitizen,
-                when() {
-                    return !adapters || !ruleTmp.commitizen.includes(adapters);
-                }
+module.exports = async (rule, tplName) => {
+    // get cli's adapter, if commitizen config is error, let user choose
+    const userInput = await inquirer.prompt([
+        {
+            type: 'list',
+            name: 'adapter',
+            message: 'choose a adapters for commitizen: ',
+            choices: Object.keys(adapterConfigFile),
+            when() {
+                return !rule.content || !Object.keys(adapterConfigFile).includes(rule.content);
             }
-        ]);
-        const adapter = userInput.adapter || adapters;
-
-        // install commitizen, adapter and copy there config to root dir
-        const cliConfPath = path.resolve(__dirname, '../templates', type, supportConf.cli);
-        const adapterConfPath = path.resolve(__dirname, '../templates', type, supportConf.adapter[adapter]);
-
-        if (!fs.existsSync(cliConfPath) || !fs.existsSync(adapterConfPath)) {
-            handleErr(`没有在 ${type} 中找到 ${name} 的配置文件`);
-            process.exit(1);
         }
+    ]);
+    const adapter = userInput.adapter || rule.content;
 
-        await installPkg('commitizen');
-        await installPkg(adapter);
-        await copyFile(cliConfPath, path.resolve(process.cwd(), supportConf.cli));
-        await copyFile(adapterConfPath, path.resolve(process.cwd(), supportConf.adapter[adapter]));
+    // install commitizen, adapter and copy there config to root dir
+    await installPkg('commitizen');
+    // eslint-disable-next-line
+    const cliSourcePath = await getConfigFilePath('.czrc', tplName, cliConfigFile);
+    await copyFile(cliSourcePath, getConfigTargetPath(cliSourcePath));
 
-        // add `npm run commit` in pkg
-        editPkg('scripts', 'commit', 'git-cz');
+    await installPkg(adapter);
+    // eslint-disable-next-line
+    const adapterSourcePath = await getConfigFilePath(adapter, tplName, adapterConfigFile[adapter]);
+    await copyFile(adapterSourcePath, getConfigTargetPath(adapterSourcePath));
 
-    }
-    catch (err) {
-        handleErr(err);
-        process.exit(1);
-    }
+    // add `npm run commit` in pkg
+    editPkg('scripts', 'commit', 'git-cz');
 };

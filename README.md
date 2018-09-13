@@ -5,4 +5,10 @@
 [sudo] npm install happy-fe-tool -g
 ```
 
-## prettier
+```bash
+# add single rule
+happy add ${rule} -t baidu
+
+# init rules with tpl
+happy init -t baidu
+```
