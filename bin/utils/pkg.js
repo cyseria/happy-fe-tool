@@ -19,7 +19,6 @@ exports.installPkg = async function(module, exclusive) {
     try {
         if (Array.isArray(module)) {
             module = module.join(' ');
-            console.log(module);
         }
         if (!exclusive) {
             exclusive = '-D';

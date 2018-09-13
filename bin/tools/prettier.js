@@ -9,6 +9,15 @@ const {types} = require('../config');
 const {handleErr, handleSuccess} = require('../utils/output');
 const copyFile = require('../utils/copy');
 
+// confugyration file, see https://prettier.io/docs/en/configuration.html
+const supportConfFile = [
+    '.prettierrc.yaml',
+    '.prettierrc.yml',
+    '.prettierrc.json',
+    '.prettierrc.toml',
+    'prettier.config.js',
+    '.prettierrc.js'
+];
 module.exports = async function(type, name) {
     try {
         let sourcePath = '';
@@ -16,22 +25,13 @@ module.exports = async function(type, name) {
         if (typeof file === 'string') {
             sourcePath = path.resolve(__dirname, './templates', type, file);
         } else {
-            // confugyration file, see https://prettier.io/docs/en/configuration.html
-            const supportConfFile = [
-                '.prettierrc.yaml',
-                '.prettierrc.yml',
-                '.prettierrc.json',
-                '.prettierrc.toml',
-                'prettier.config.js',
-                '.prettierrc.js'
-            ];
             // prettier: true, 自动查找响应的配置, 兼容处理
             const existsConf = supportConfFile.filter(item => {
                 const tmpPath = path.resolve(__dirname, '../templates', type, item);
                 return fs.existsSync(tmpPath);
             });
             if (existsConf.length === 0) {
-                handleErr(`没有在 ${type} 中找到配置文件`);
+                handleErr(`没有在 ${type} 中找到 ${name} 的配置文件`);
                 exit(1);
             }
             sourcePath = path.resolve(__dirname, '../templates', defaultConf, existsConf[0]);

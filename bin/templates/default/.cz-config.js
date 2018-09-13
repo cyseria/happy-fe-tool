@@ -48,7 +48,7 @@ module.exports = {
         }
     ],
 
-    scopes: ['changelog', 'commitizen', 'codelint', 'prettier', 'test', 'nvm'],
+    scopes: [],
     allowCustomScopes: true,
     allowBreakingChanges: ['feat', 'fix']
 };
