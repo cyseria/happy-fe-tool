@@ -6,7 +6,7 @@
 const fs = require('fs');
 const path = require('path');
 const inquirer = require('inquirer');
-const {tpls} = require('../config');
+const {tpls} = require('../../templates/config');
 const {handleErr} = require('../utils/output');
 
 module.exports = {
@@ -22,7 +22,7 @@ module.exports = {
         const ruleContent = rule.content || rule;
         // 1. 如果用户有提供配置则优先使用用户提供的配置文件
         if (typeof ruleContent === 'string') {
-            const sourcePath = path.resolve(__dirname, './templates', tplName, ruleContent);
+            const sourcePath = path.resolve(__dirname, '../../templates', tplName, ruleContent);
             if (fs.existsSync(sourcePath)) {
                 return sourcePath;
             }
@@ -66,7 +66,7 @@ module.exports = {
             return path.resolve(__dirname, '../templates', templates, tpls[templates][rule.name]);
         }
         else {
-            handleErr(`找不到 ${rule.name} 的配置文件了啦, 请检查配置信息~`);
+            handleErr(`找不到 ${rule.name} 的配置文件了啦, 请检查配置信息, tpl: ${tplName}`);
             process.exit(1);
         }
     },

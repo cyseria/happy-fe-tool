@@ -1,26 +1,8 @@
-const path = require('path');
+/**
+ * @file 在项目中有用到的配置
+ * @author cyseria <xcyseria@gmail.com>
+ */
 
-// 仅供当做参考的配置格式, 没有地方使用
-exports.ruleTmp = {
-    nvm: true,
-    prettier: '', // prettier 配置路径
-    commitizen: ['cz-customizable', 'cz-conventional-changelog'], // commitizen 配置
-    commitlint: false,
-    changelog: {
-        preset: ['angular', '@baidu/befe'],
-        hooks: ''
-    },
-    codelint: {
-        name: ['fecs', 'eslint'],
-        hooks: 'pre-commit'
-    },
-    test: {
-        type: 'jest',
-        hooks: 'pre-push'
-    }
-};
-
-// 实际使用配置
 exports.tpls = {
     baidu: {
         // baidu fe 规范

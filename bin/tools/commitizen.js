@@ -41,7 +41,8 @@ module.exports = async (rule, tplName) => {
 
     await installPkg(adapter);
     // eslint-disable-next-line
-    const adapterSourcePath = await getConfigFilePath(adapter, tplName, adapterConfigFile[adapter]);
+    const adapterSourcePath = await getConfigFilePath(adapterConfigFile[adapter], tplName, adapterConfigFile);
+
     await copyFile(adapterSourcePath, getConfigTargetPath(adapterSourcePath));
 
     // add `npm run commit` in pkg

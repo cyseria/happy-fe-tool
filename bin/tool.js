@@ -10,7 +10,7 @@ const program = require('commander');
 const inquirer = require('inquirer');
 const pkg = require('../package.json');
 const {handleSuccess, handleInfo} = require('./utils/output');
-const {tpls} = require('./config');
+const {tpls} = require('../templates/config');
 
 // 版本信息
 program.version(pkg.version, '-v, --version');
@@ -43,9 +43,7 @@ program
         }
         else if (!!cmd.tpl) {
             handleInfo(
-                `can't find ${
-                cmd.tpl
-                } in config, please check and try again. 
+                `can't find ${cmd.tpl} in config, please check and try again. 
  use -y by default config, or use init and follow guide`
             );
         }
@@ -73,10 +71,41 @@ program
 program
     .command('init <tpl>')
     .description('init project with templates rules')
-    .action((tpl, options) => {
+    .action(async (tpl, options) => {
         // require(`./tools/${ruleName}`)(ruleType, ruleName);
+        if (!Object.keys(tpls).includes(tpl)) {
+            handleInfo(`can't find template ${tpl}, please check it and try again...`);
+        }
 
-        console.log('ask for choose');
+        const template = tpls[tpl];
+        const choices = Object.keys(template).map(item => {
+            return {
+                name: item
+                // checked: true
+            };
+        });
+        await inquirer
+            .prompt([
+                {
+                    type: 'checkbox',
+                    name: 'rules',
+                    message: 'Select the rules you want to add: ',
+                    choices: choices
+                }
+            ])
+            .then(async answers => {
+                // console.log(answers)
+                await Promise.all(
+                    answers.rules.map(rule => {
+                        const ruleName = rule;
+                        const ruleContent = template[rule];
+                        const curRuleCfg = {name: ruleName, content: ruleContent};
+                        return require(`./tools/${ruleName}`)(curRuleCfg, tpl);
+                    })
+                );
+                handleSuccess(`✨ finish add rules: ${answers.rules.join(', ')}`);
+            });
+        // console.log(userInput);
     });
 
 // remove
@@ -93,4 +122,6 @@ program
     .action((command, options) => {
     });
 
+function getTpl() {
+}
 program.parse(process.argv);

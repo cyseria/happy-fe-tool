@@ -33,7 +33,7 @@ module.exports = {
         },
         {
             value: 'chore',
-            name: "🗯  chore:    Changes that don't modify src or test files. Such as updating package manager"
+            name: '🗯  chore:    Changes that don\'t modify src or test files. Such as updating package manager'
         },
         {
             value: 'perf',
