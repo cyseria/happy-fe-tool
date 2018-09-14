@@ -23,14 +23,5 @@ exports.tpls = {
             },
             hooks: 'pre-push'
         }
-    },
-    simple: {
-        // 给其他语言用的
-        commitizen: true,
-        prettier: '.prett'
-    },
-    angular: {
-        prettier: '.prettierrc.js',
-        commitizen: 'cz-conventional-changelog'
     }
 };

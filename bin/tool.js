@@ -69,10 +69,21 @@ program
 
 // 项目初始化
 program
-    .command('init <tpl>')
+    .command('init [tpl]')
     .description('init project with templates rules')
     .action(async (tpl, options) => {
-        // require(`./tools/${ruleName}`)(ruleType, ruleName);
+        const userInput = await inquirer.prompt([
+            {
+                type: 'list',
+                name: 'tpl',
+                message: 'choose a template: ',
+                choices: Object.keys(tpls), // todo: exsit key
+                when() {
+                    return !tpl;
+                }
+            }
+        ]);
+        tpl = userInput.tpl || tpl;
         if (!Object.keys(tpls).includes(tpl)) {
             handleInfo(`can't find template ${tpl}, please check it and try again...`);
         }
@@ -81,7 +92,6 @@ program
         const choices = Object.keys(template).map(item => {
             return {
                 name: item
-                // checked: true
             };
         });
         await inquirer
@@ -94,7 +104,6 @@ program
                 }
             ])
             .then(async answers => {
-                // console.log(answers)
                 await Promise.all(
                     answers.rules.map(rule => {
                         const ruleName = rule;
@@ -105,7 +114,6 @@ program
                 );
                 handleSuccess(`✨ finish add rules: ${answers.rules.join(', ')}`);
             });
-        // console.log(userInput);
     });
 
 // remove
