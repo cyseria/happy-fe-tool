@@ -48,7 +48,7 @@ module.exports = async (rule, tplName) => {
     const targetPath = getConfigTargetPath(sourcePath);
     await copyFile(sourcePath, targetPath);
 
-    editPkg('scripts', 'fecs', 'fecs format --replace true && fecs check --level 2');
+    editPkg(['scripts', 'fecs'], 'fecs format --replace true && fecs check --level 2');
 
     // baidu, 存在 commit-msg, husky 会自动忽略, 使用临时解决方案
     // if (tplName === 'baidu' && rule.content.hooks === 'commit-msg') {

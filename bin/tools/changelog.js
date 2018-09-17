@@ -45,10 +45,9 @@ module.exports = async (rule, tplName) => {
     }
 
     editPkg(
-        'scripts',
-        'changelog',
+        ['scripts', 'changelog'],
         `conventional-changelog -p ${presetName} -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md`
     );
-    editPkg('scripts', 'version', 'npm run changelogd');
+    editPkg(['scripts', 'version'], 'npm run changelogd');
     addHooks(rule.content.hooks, 'npm run changelog');
 };

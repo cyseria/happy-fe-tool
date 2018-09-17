@@ -66,7 +66,7 @@ module.exports = {
             return path.resolve(__dirname, '../templates', templates, tpls[templates][rule.name]);
         }
         else {
-            handleErr(`找不到 ${rule.name} 的配置文件了啦, 请检查配置信息, tpl: ${tplName}`);
+            handleErr(`找不到 ${ruleContent} 的配置文件了啦, 请检查配置信息, tpl: ${tplName}`);
             process.exit(1);
         }
     },

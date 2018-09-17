@@ -17,6 +17,7 @@ const {
  * 安装包内容
  * @param {string|Array} module - modulename
  * @param {Boolean} exclusive - 3 exclusive, optional flags which save or update the package version, eg. -S, -D, -O
+ * @param {Object} config - npm config, like registry
  */
 exports.installPkg = async (module, exclusive, config) => {
     try {
@@ -72,33 +73,47 @@ exports.pkgUp = async () => {
 };
 
 /**
- * 修改 package.json 中的字段
- * @param {string} type - eg. 'scripts', 'config'
- * @param {string} key - key
+ * 新增/修改 package.json 中的字段
+ * @param {Array} keys - eg. ['scripts', 'test'], ['config', 'commitizen']
  * @param {any} value - value
+ *
+ * @example
+ * editPkg(['scripts', 'test'], 'jest')
+ * => {scripts: {test: 'jest'}}
  */
-exports.editPkg = (type, key, value) => {
+exports.editPkg = (keys, value) => {
     const pkgPath = path.resolve(process.cwd(), 'package.json');
+    const length = keys.length;
     const pkgObj = fs.readJsonSync(pkgPath);
+    let newObj = Object.assign({}, pkgObj);
 
-    if (!pkgObj[type]) {
-        pkgObj[type] = {};
-    }
+    if (Array.isArray(keys) && keys.length > 0) {
+        keys.map((key, index) => {
+            if (!newObj.hasOwnProperty(key)) {
+                newObj[key] = {};
+            }
 
-    const conf = pkgObj[type];
-    if (!!conf[key]) {
-        const oldScriptArr = conf[key].split('&&');
-        const newScriptArr = value.split('&&');
-        conf[key] = concatAndUniqueArr(oldScriptArr, newScriptArr).join(' && ');
-    }
-    else {
-        conf[key] = value;
+            if (index === length - 1) {
+                if (Object.keys(newObj[key]).length > 0) {
+                    const oldScriptArr = newObj[key].split('&&');
+                    const newScriptArr = value.split('&&');
+                    newObj[key] = concatAndUniqueArr(oldScriptArr, newScriptArr).join(' && ');
+                }
+                else {
+                    newObj[key] = value;
+                }
+            }
+            else {
+                newObj = newObj[key];
+            }
+        });
     }
 
     fs.writeJsonSync(pkgPath, pkgObj, {
         spaces: 4
     });
 };
+
 exports.addHooks = (hook, script) => {
     const pkgPath = path.resolve(process.cwd(), 'package.json');
     const pkgObj = fs.readJsonSync(pkgPath);

@@ -46,5 +46,7 @@ module.exports = async (rule, tplName) => {
     await copyFile(adapterSourcePath, getConfigTargetPath(adapterSourcePath));
 
     // add `npm run commit` in pkg
-    editPkg('scripts', 'commit', 'git-cz');
+    editPkg(['scripts', 'commit'], 'git-cz');
+
+    // "path": "./node_modules/cz-conventional-changelog"
 };

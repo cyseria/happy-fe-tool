@@ -23,5 +23,17 @@ exports.tpls = {
             },
             hooks: 'pre-push'
         }
+        // test: {
+        //     testTool: 'jest',
+        //     covTool: ''
+        // }
+    },
+    simple: {
+        // 其他项目
+        commitizen: 'cz-customizable', // adapter, required
+        changelog: {
+            preset: 'angular',
+            hooks: 'pre-push'
+        }
     }
 };
