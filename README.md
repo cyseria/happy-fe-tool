@@ -1,7 +1,7 @@
 # happy-fe-tool
 一个方便自己使用的 fe 工具箱, 主要针对于一些基础工具的安装和配置
 
-作为一个合格的程序员, 才懒得每新起项目就去 ``npm i xxx -D` && `ctrl+c & ctrl+v` 呢 🌝
+作为一个合格的程序员, 才懒得每新起项目就去 `npm i xxx -D` && `ctrl+c & ctrl+v` 呢 🌝
 
 ## Install
 ```
