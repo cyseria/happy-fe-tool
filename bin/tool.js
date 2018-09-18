@@ -11,50 +11,26 @@ const inquirer = require('inquirer');
 const pkg = require('../package.json');
 const {handleSuccess, handleInfo} = require('./utils/output');
 const {tpls} = require('../templates/config');
+const {getTplFromCmd, getDirFromCmd} = require('./utils/input');
 
 // 版本信息
 program.version(pkg.version, '-v, --version');
 
 // use
+// TODO: choose rule
 program
     .command('add <rules...>')
     .description('add single tool')
     .option('-t, --tpl <tpl>', 'set a template')
     .option('-y, --yes', 'use default template without any question')
-    .option('-p, --package', 'set config in package.json, instead of root (file .*rc) ')
+    .option('-d, --dir [dir]', 'set config in package.json or custom directory instead of root (file .*rc) ')
     .action(async (rules, cmd) => {
-        // TODO: choose rule
-
-        // get config tpl
-        // if set options -y, use default
-        // if set custom tpl by -t, use custom
-        // otherwise, let user choose from config tpls
-        const userInput = await inquirer.prompt([
-            {
-                type: 'list',
-                name: 'tpl',
-                message: 'choose a template: ',
-                choices: Object.keys(tpls), // todo: exsit key
-                when() {
-                    return !cmd.tpl && !cmd.yes;
-                }
-            }
-        ]);
-        let tpl = userInput.tpl || '';
-        if (!!cmd.tpl && Object.keys(tpls).includes(cmd.tpl)) {
-            tpl = cmd.tpl;
-        }
-        else if (!!cmd.tpl) {
-            handleInfo(
-                `can't find ${cmd.tpl} in config, please check and try again. 
- use -y by default config, or use init and follow guide`
-            );
-        }
-        else if (!!cmd.yes) {
-            tpl = 'default';
-        }
+        const tpl = await getTplFromCmd(cmd); // eslint-disable-line
+        const dir = await getDirFromCmd(cmd); // eslint-disable-line
 
         const ruleConf = tpls[tpl];
+
+        // 判断添加的规则是否存在
         const legalRules = [];
         rules.map(rule => {
             Object.keys(ruleConf).includes(rule) ? legalRules.push(rule) : handleInfo(`no rule "${rule}", skip it...`);
@@ -64,7 +40,7 @@ program
                 const ruleName = rule;
                 const ruleContent = ruleConf[rule];
                 const curRuleCfg = {name: ruleName, content: ruleContent};
-                return require(`./tools/${ruleName}`)(curRuleCfg, tpl);
+                return require(`./tools/${ruleName}`)(curRuleCfg, tpl, dir);
             })
         );
         handleSuccess(`✨ finish add rules: ${legalRules.join(', ')}`);
@@ -133,6 +109,4 @@ program
     .action((command, options) => {
     });
 
-function getTpl() {
-}
 program.parse(process.argv);

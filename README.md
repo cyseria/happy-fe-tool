@@ -80,7 +80,7 @@ happy add prettier
 happy add commitizen
 
 # 将配置文件放在 package 配置中
-happy add commitizen -p
+happy add commitizen -d paxkage.json
 
 # 将配置文件放在 ./config 目录下
 happy add commitizen -d ./config
@@ -99,3 +99,5 @@ happy add commitizen -d ./config
 ### codelint
 
 ### commitlint
+
+### test

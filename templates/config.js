@@ -20,8 +20,8 @@ exports.tpls = {
                 name: '@baidu/befe',
                 dependency: '@baidu/conventional-changelog-befe',
                 registry: 'http://registry.npm.baidu-int.com'
-            },
-            hooks: 'pre-push'
+            }
+            // hooks: 'pre-push'
         }
         // test: {
         //     testTool: 'jest',
