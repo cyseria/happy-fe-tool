@@ -5,8 +5,7 @@
 
 const {
     installPkg,
-    editPkg,
-    addHooks
+    editPkg
 } = require('../utils/pkg');
 
 /**
@@ -48,6 +47,11 @@ module.exports = async (rule, tplName) => {
         ['scripts', 'changelog'],
         `conventional-changelog -p ${presetName} -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md`
     );
-    editPkg(['scripts', 'version'], 'npm run changelogd');
-    addHooks(rule.content.hooks, 'npm run changelog');
+    editPkg(['scripts', 'version'], 'npm run changelog');
+
+    editPkg(
+        ['scripts', 'changelog'],
+        `conventional-changelog -p ${presetName} -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md`
+    );
+    editPkg(['husky', 'hooks', rule.content.hooks], 'npm run changelog');
 };

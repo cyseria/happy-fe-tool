@@ -7,7 +7,7 @@
         "happy": "./bin/tool.js"
     },
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
+        "test": "jest",
         "commit": "git-cz",
         "fecs": "fecs format --replace true && fecs check --level 2",
         "changelog": "conventional-changelog -p @baidu/befe -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
@@ -39,6 +39,7 @@
         "cz-customizable": "^5.2.0",
         "fecs": "^1.5.5",
         "husky": "^1.0.0-rc.14",
+        "jest": "^23.6.0",
         "lint-staged": "^7.2.2"
     },
     "husky": {

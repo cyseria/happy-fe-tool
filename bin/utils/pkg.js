@@ -85,11 +85,16 @@ exports.editPkg = (keys, value) => {
     const pkgPath = path.resolve(process.cwd(), 'package.json');
     const length = keys.length;
     const pkgObj = fs.readJsonSync(pkgPath);
-    let newObj = Object.assign({}, pkgObj);
+    let newObj = Object.assign({}, pkgObj); // 浅拷贝
 
     if (Array.isArray(keys) && keys.length > 0) {
         keys.map((key, index) => {
-            if (!newObj.hasOwnProperty(key)) {
+            const hasProperty = hasOwnProperty(newObj, key);
+            if (index === 0 && !hasProperty) {
+                pkgObj[key] = {};
+                newObj = Object.assign({}, pkgObj);
+            }
+            else if (!hasProperty) {
                 newObj[key] = {};
             }
 
@@ -114,35 +119,13 @@ exports.editPkg = (keys, value) => {
     });
 };
 
-exports.addHooks = (hook, script) => {
-    const pkgPath = path.resolve(process.cwd(), 'package.json');
-    const pkgObj = fs.readJsonSync(pkgPath);
-
-    if (!pkgObj.husky) {
-        pkgObj.husky = {};
+function hasOwnProperty(obj, key) {
+    if (Object.prototype.toString.call(obj) !== '[object Object]') {
+        return false;
     }
 
-    const husky = pkgObj.husky;
-
-    if (!husky.hooks) {
-        husky.hooks = {};
-    }
-
-    const hooks = husky.hooks;
-
-    // 如果已经存在该 key 且没该 value, 在后面加上 && xxx
-    if (!!hooks[hook]) {
-        const scriptArr = hooks[hook].split('&&');
-        hooks[hook] = scriptArr.includes(script) ? hooks[hook] : hooks[hook] + ' && ' + script;
-    }
-    else {
-        hooks[hook] = script;
-    }
-
-    fs.writeJsonSync(pkgPath, pkgObj, {
-        spaces: 4
-    });
-};
+    return Object.prototype.hasOwnProperty.call(obj, key);
+}
 
 /**
  * 合并数组并去重

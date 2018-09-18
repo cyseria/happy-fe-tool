@@ -21,7 +21,10 @@ program
     .description('add single tool')
     .option('-t, --tpl <tpl>', 'set a template')
     .option('-y, --yes', 'use default template without any question')
+    .option('-p, --package', 'set config in package.json, instead of root (file .*rc) ')
     .action(async (rules, cmd) => {
+        // TODO: choose rule
+
         // get config tpl
         // if set options -y, use default
         // if set custom tpl by -t, use custom

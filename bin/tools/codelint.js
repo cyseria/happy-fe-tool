@@ -6,8 +6,7 @@
 const copyFile = require('../utils/copy');
 const {
     installPkg,
-    editPkg,
-    addHooks
+    editPkg
 } = require('../utils/pkg');
 const {getConfigFilePath, getConfigTargetPath} = require('../utils/configOpt');
 
@@ -61,7 +60,7 @@ module.exports = async (rule, tplName) => {
         const sourcePath = await getConfigFilePath(lintStagedConfigFile, tplName, supportLintConfigFile);
         const targetPath = getConfigTargetPath(sourcePath);
         await copyFile(sourcePath, targetPath);
-        addHooks(rule.content.hooks, 'lint-staged');
+        editPkg(['husky', 'hooks', rule.content.hooks], 'lint-staged');
     }
 
 };
