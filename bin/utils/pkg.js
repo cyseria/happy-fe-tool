@@ -95,13 +95,20 @@ exports.editPkg = (keys, value) => {
             }
 
             if (index === length - 1) {
-                if (Object.keys(newObj[key]).length > 0) {
+                if (Object.keys(newObj[key]).length > 0 && typeof newObj[key] === 'string') {
                     const oldScriptArr = newObj[key].split('&&');
                     const newScriptArr = value.split('&&');
-                    newObj[key] = concatAndUniqueArr(oldScriptArr, newScriptArr).join(' && ');
+                    const newVal = concatAndUniqueArr(oldScriptArr, newScriptArr).join(' && ');
+                    newObj[key] = newVal;
+                    if (keys.length === 1) {
+                        pkgObj[key] = newVal;
+                    }
                 }
                 else {
                     newObj[key] = value;
+                    if (keys.length === 1) {
+                        pkgObj[key] = value;
+                    }
                 }
             }
             else {

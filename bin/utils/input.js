@@ -49,9 +49,10 @@ use -y by default config, or use init and follow guide`
  */
 exports.getDirFromCmd = async cmd => {
     let dir = undefined;
-    if (cmd.dir === true || cmd.dir === 'package.json') {
+    if (cmd.dir === true) {
         // 配置写进 package.json 中
-        dir = 'package.json';
+        dir = path.resolve(process.cwd(), './happy-config');
+        fs.ensureDir(dir);
     }
     else if (!!cmd.dir) {
         // 配置写进在自定义目录里面

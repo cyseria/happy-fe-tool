@@ -48,7 +48,6 @@ exports.getConfigFilePath = async (rule, tplName, supportFile) => {
             const tmpPath = path.resolve(__dirname, '../templates', tpl, tpls[tpl][rule.name]);
             return fs.pathExistsSync(tmpPath);
         }
-
     });
     if (existTpl.length > 0) {
         const userInput = await inquirer.prompt([
@@ -61,8 +60,7 @@ exports.getConfigFilePath = async (rule, tplName, supportFile) => {
         ]);
         const templates = userInput.templates;
         return path.resolve(__dirname, '../templates', templates, tpls[templates][rule.name]);
-    }
-    else {
+    } else {
         handleErr(`找不到 ${ruleContent} 的配置文件了啦, 请检查配置信息, tpl: ${tplName}`);
         process.exit(1);
     }
@@ -86,21 +84,15 @@ exports.getConfigTargetPath = sourcePath => {
  */
 exports.setConfig = async (source, dir, config) => {
     if (!!dir && !!config) {
-        const {
-            keys,
-            value,
-            isCopyFile
-        } = config;
+        const {keys, value, isCopyFile} = config;
         if (isCopyFile) {
             const fileName = path.basename(source);
             const target = path.resolve(dir, fileName);
-            // console.log(source, target)
             await copyFile(source, target);
         }
 
         editPkg(keys, value);
-    }
-    else {
+    } else {
         const target = exports.getConfigTargetPath(source);
         await copyFile(source, target);
     }

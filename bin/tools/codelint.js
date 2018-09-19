@@ -3,16 +3,26 @@
  * @author Cyseria <xcyseria@gmail.com>
  */
 
+const fs = require('fs-extra')
+const path = require('path');
 const copyFile = require('../utils/copy');
 const {
     installPkg,
     editPkg
 } = require('../utils/pkg');
-const {getConfigFilePath, getConfigTargetPath} = require('../utils/configOpt');
+const {getConfigFilePath, getConfigTargetPath, setConfig} = require('../utils/configOpt');
 
 // lint tool config
 const supportConfigFile = {
-    fecs: ['.fecsrc'],
+    // fecs 的配置放在 package.json 不能以 path 的形式
+    fecs: {
+        supportFile: ['.fecsrc'],
+        scriptsVal: 'fecs format --replace true && fecs check --level 2',
+        // 放进 package.json 文件时的配置
+        configKeys: ['fecs'],
+        configType: 'file' // file 读取内容，path 传路径
+    },
+    
     eslint: []
 };
 
@@ -36,31 +46,61 @@ const supportLintConfigFile = ['.lintstagedrc', 'lint-staged.config.js'];
     }
  * }
  */
-module.exports = async (rule, tplName) => {
+module.exports = async (rule, tplName, dir) => {
     const lintTool = rule.content.lintTool || rule.content;
-    const supportFile = supportConfigFile[lintTool];
+    const {supportFile, scriptsVal, configKeys, configType} = supportConfigFile[lintTool]
 
+    // install lint tools, like fecs, and copy config file
     installPkg(lintTool);
-
     const lintConfigFile = rule.content.lintConfigFile || '';
     const sourcePath = await getConfigFilePath(lintConfigFile, tplName, supportFile);
-    const targetPath = getConfigTargetPath(sourcePath);
-    await copyFile(sourcePath, targetPath);
+    // const targetPath = getConfigTargetPath(sourcePath);
+    // await copyFile(sourcePath, targetPath);
 
-    editPkg(['scripts', 'fecs'], 'fecs format --replace true && fecs check --level 2');
+
+    const configVal = await getCOnfigValue(configType, sourcePath, dir);
+    
+    // set lint tool config file
+    await setConfig(sourcePath, dir, {
+        keys: configKeys,
+        value: configVal,
+        isCopyFile: false
+    });
+
+    editPkg(['scripts', 'lint'], scriptsVal);
 
     // baidu, 存在 commit-msg, husky 会自动忽略, 使用临时解决方案
     // if (tplName === 'baidu' && rule.content.hooks === 'commit-msg') {
     //     // TODO: if hooks === commit-msg, use personal package
     // }
+
     if (!!rule.content.hooks) {
         installPkg(['husky@next', 'lint-staged']);
-
+        // lint-staged config file
         const lintStagedConfigFile = rule.content.lintStagedConfigFile || '';
         const sourcePath = await getConfigFilePath(lintStagedConfigFile, tplName, supportLintConfigFile);
-        const targetPath = getConfigTargetPath(sourcePath);
-        await copyFile(sourcePath, targetPath);
+
+        const configVal = await getCOnfigValue('file', sourcePath, dir);
+        await setConfig(sourcePath, dir, {
+            keys: ['lint-staged'],
+            value: configVal,
+            isCopyFile: false
+        });
+
+        // const targetPath = getConfigTargetPath(sourcePath);
+        // await copyFile(sourcePath, targetPath);
         editPkg(['husky', 'hooks', rule.content.hooks], 'lint-staged');
     }
 
 };
+
+async function getCOnfigValue(configType, sourcePath, dir) {
+    if (configType === 'file') {
+        const sourceJson = await fs.readJson(sourcePath);
+        return sourceJson;
+    } else if (configType === 'path') {
+        const relativePath = !!dir ? path.relative(process.cwd(), dir) : dir;
+        const fileName = path.basename(adapterSourcePath);
+        return relativePath ? path.join(relativePath, fileName) : '';
+    }
+}
