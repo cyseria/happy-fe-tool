@@ -37,8 +37,7 @@ happy add <rules...> [options]
 # options
 -t, --tpl <tpl>  指定模板
 -y, --yes  使用默认的模板
--d, --dir <dir>  设置配置信息的路径（默认在根目录）
--p, --package 将配置信息放入 package.JSON
+-d, --dir [dir] 设置配置信息的路径，并把相关命令写在 package.json 中（没有配置 dir 默认在 happy-config）
 -h, --help  获取帮助信息
 ```
 
