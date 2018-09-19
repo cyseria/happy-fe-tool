@@ -1,4 +1,7 @@
-# 2.0.0 (2018-09-19)
+## [2.0.1](https://github.com/cyseria/happy-fe-tool/compare/v2.0.0...v2.0.1) (2018-09-19)
+
+
+# [2.0.0](https://github.com/cyseria/happy-fe-tool/compare/781fa4c...v2.0.0) (2018-09-19)
 
 
 ### 修复
