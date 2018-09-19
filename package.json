@@ -1,6 +1,6 @@
 {
     "name": "happy-fe-tool",
-    "version": "1.0.1",
+    "version": "2.0.0",
     "description": "一系列 fe 工具集合",
     "main": "index.js",
     "bin": {
@@ -11,7 +11,7 @@
         "commit": "git-cz",
         "fecs": "fecs format --replace true && fecs check --level 2",
         "changelog": "conventional-changelog -p @baidu/befe -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
-        "version": "npm run changelogd"
+        "version": "npm run changelog"
     },
     "repository": {
         "type": "git",
