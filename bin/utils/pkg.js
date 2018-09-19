@@ -7,11 +7,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const ora = require('ora');
 const execa = require('execa');
-const {
-    handleErr,
-    handleInfo,
-    handleSuccess
-} = require('./output');
+const {handleErr} = require('./output');
 
 /**
  * 安装包内容

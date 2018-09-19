@@ -3,12 +3,10 @@
  * @author Cyseria <xcyseria@gmail.com>
  */
 
-const fs = require('fs-extra');
 const path = require('path');
 const inquirer = require('inquirer');
 const {installPkg, editPkg} = require('../utils/pkg');
-const copyFile = require('../utils/copy');
-const {getConfigFilePath, getConfigTargetPath} = require('../utils/configOpt');
+const {getConfigFilePath, setConfig} = require('../utils/configOpt');
 
 const cliConfigFile = '.czrc';
 const adapterConfigFile = {
@@ -40,31 +38,24 @@ module.exports = async (rule, tplName, dir) => {
     await installPkg('commitizen');
     // eslint-disable-next-line
     const cliSourcePath = await getConfigFilePath('.czrc', tplName, cliConfigFile);
-    await setConfig(cliSourcePath, dir, 'commitizen');
+
+    await setConfig(cliSourcePath, dir, {
+        keys: ['config', 'commitizen', 'path'],
+        value: `./node_modules/${adapter}`,
+        isCopyFile: false
+    });
 
     await installPkg(adapter);
+
     // eslint-disable-next-line
     const adapterSourcePath = await getConfigFilePath(adapterConfigFile[adapter], tplName, adapterConfigFile);
-    await copyFile(adapterSourcePath, getConfigTargetPath(adapterSourcePath));
-
+    const relativePath = !!dir ? path.relative(process.cwd(), dir) : dir;
+    const fileName = path.basename(adapterSourcePath);
+    await setConfig(adapterSourcePath, dir, {
+        keys: ['config', adapter, 'config'],
+        value: relativePath ? path.join(relativePath, fileName) : '',
+        isCopyFile: true
+    });
     // add `npm run commit` in pkg
     editPkg(['scripts', 'commit'], 'git-cz');
 };
-
-async function setConfig(source, dir, configName) {
-    if (dir === 'package.json' && !configName) { // set config in package.json
-        const config = fs.readJsonSync(source);
-        Object.keys(config).map(key => {
-            editPkg(['config', configName, key], config[key]);
-        });
-    }
-    else if (!!dir) { // copy file to custom dir
-        const fileName = path.basename(source);
-        const target = path.resolve(dir, fileName);
-        await copyFile(source, target);
-    }
-    else { // default copy file in root
-        const target = getConfigTargetPath(source);
-        await copyFile(source, target);
-    }
-}
