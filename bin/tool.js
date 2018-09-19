@@ -50,7 +50,8 @@ program
 program
     .command('init [tpl]')
     .description('init project with templates rules')
-    .action(async (tpl, options) => {
+    .option('-d, --dir [dir]', 'set config in package.json or custom directory instead of root (file .*rc) ')
+    .action(async (tpl, cmd) => {
         const userInput = await inquirer.prompt([
             {
                 type: 'list',
@@ -73,6 +74,7 @@ program
                 name: item
             };
         });
+        const dir = await getDirFromCmd(cmd); // eslint-disable-line
         await inquirer
             .prompt([
                 {
@@ -88,7 +90,7 @@ program
                         const ruleName = rule;
                         const ruleContent = template[rule];
                         const curRuleCfg = {name: ruleName, content: ruleContent};
-                        return require(`./tools/${ruleName}`)(curRuleCfg, tpl);
+                        return require(`./tools/${ruleName}`)(curRuleCfg, tpl, dir);
                     })
                 );
                 handleSuccess(`✨ finish add rules: ${answers.rules.join(', ')}`);
