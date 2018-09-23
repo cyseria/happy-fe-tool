@@ -28,7 +28,8 @@ exports.installPkg = async (module, exclusive, config) => {
         }
 
         const installStr = installModule.join(' ');
-        const spinner = ora(`install package ${installStr}, please wait a min...`).start();
+        const spinner = ora(`install package ${installStr}, please wait a min... 
+`).start();
 
         let configStr = '';
         if (!!config) {
@@ -40,7 +41,7 @@ exports.installPkg = async (module, exclusive, config) => {
             }
         }
 
-        await execa.shellSync(`npm install ${installStr} ${exclusive} ${configStr}`);
+        await execa.shell(`npm install ${installStr} ${exclusive} ${configStr}`);
         spinner.succeed(`add package ${installStr} success`);
     }
     catch (error) {

@@ -35,14 +35,13 @@ program
         rules.map(rule => {
             Object.keys(ruleConf).includes(rule) ? legalRules.push(rule) : handleInfo(`no rule "${rule}", skip it...`);
         });
-        await Promise.all(
-            legalRules.map(rule => {
-                const ruleName = rule;
-                const ruleContent = ruleConf[rule];
-                const curRuleCfg = {name: ruleName, content: ruleContent};
-                return require(`./tools/${ruleName}`)(curRuleCfg, tpl, dir);
-            })
-        );
+
+        for (const rule of legalRules) {
+            const ruleName = rule;
+            const ruleContent = ruleConf[rule];
+            const curRuleCfg = {name: ruleName, content: ruleContent};
+            await require(`./tools/${ruleName}`)(curRuleCfg, tpl, dir);
+        }
         handleSuccess(`✨ finish add rules: ${legalRules.join(', ')}`);
     });
 
@@ -85,14 +84,12 @@ program
                 }
             ])
             .then(async answers => {
-                await Promise.all(
-                    answers.rules.map(rule => {
-                        const ruleName = rule;
-                        const ruleContent = template[rule];
-                        const curRuleCfg = {name: ruleName, content: ruleContent};
-                        return require(`./tools/${ruleName}`)(curRuleCfg, tpl, dir);
-                    })
-                );
+                for (const rule of answers.rules) {
+                    const ruleName = rule;
+                    const ruleContent = template[rule];
+                    const curRuleCfg = {name: ruleName, content: ruleContent};
+                    await require(`./tools/${ruleName}`)(curRuleCfg, tpl, dir);
+                }
                 handleSuccess(`✨ finish add rules: ${answers.rules.join(', ')}`);
             });
     });
@@ -102,13 +99,6 @@ program
     .command('remove [rule]')
     .description('remove single tool')
     .action((rule, options) => {
-    });
-
-// ls
-program
-    .command('ls')
-    .description('list rules')
-    .action((command, options) => {
     });
 
 program.parse(process.argv);
