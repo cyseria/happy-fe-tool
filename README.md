@@ -95,6 +95,8 @@ happy add commitizen -d ./custom-config
 },
 ```
 
+Tips: 如果不习惯使用 `npm run commit` 来提交代码，可以全局安装 [commitizen](https://github.com/commitizen/cz-cli) 使用 `git cz` 来提交。
+
 ### changelog
 
 使用 [conventional-changelog-cli](https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-cli) 来生成 change log，主要根据 commit 记录中的 `type` 生成
@@ -138,6 +140,31 @@ happy add codelint -d
 "scripts": {
     "lint": "fecs format --replace true && fecs check --level 2"
 },
+```
+
+添加 `pre-hook`
+
+```bash
+# hooks
+"husky": {
+    "hooks": {
+        "pre-commit": "lint-staged"
+    }
+}
+
+# .lintstagedrc
+{
+    "*.{js, scss, css, html}": ["fecs format --replace true", "fecs check --level 2", "git add"]
+}
+```
+
+跳过 hook 检查
+
+```bash
+# use npm script
+npm run commit -- -n
+# or use git cz
+git cz -n
 ```
 
 ### commitlint
