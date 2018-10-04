@@ -75,7 +75,7 @@ module.exports = async (rule, tplName, dir) => {
     // }
 
     if (!!rule.content.hooks) {
-        installPkg(['husky@next', 'lint-staged']);
+        installPkg(['husky', 'lint-staged']);
         // lint-staged config file
         const lintStagedConfigFile = rule.content.lintStagedConfigFile || '';
         const sourcePath = await getConfigFilePath(lintStagedConfigFile, tplName, supportLintConfigFile);
