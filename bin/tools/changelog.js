@@ -49,10 +49,6 @@ module.exports = async (rule, tplName) => {
     );
     editPkg(['scripts', 'version'], 'npm run changelog');
 
-    editPkg(
-        ['scripts', 'changelog'],
-        `conventional-changelog -p ${presetName} -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md`
-    );
     if (!!rule.content.hooks) {
         editPkg(['husky', 'hooks', rule.content.hooks], 'npm run changelog');
     }
