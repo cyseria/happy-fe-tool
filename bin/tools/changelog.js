@@ -1,12 +1,9 @@
 /**
- * @file
+ * @file happy add changelog -t baidu
  * @author Cyseria <xcyseria@gmail.com>
  */
 
-const {
-    installPkg,
-    editPkg
-} = require('../utils/pkg');
+const {installPkg, editPkg} = require('../utils/pkg');
 
 /**
  * 安装 changelog 相关信息
@@ -27,7 +24,10 @@ const {
  * }
  */
 module.exports = async (rule, tplName) => {
-    installPkg('conventional-changelog-cli');
+    const copyOpts = [];
+    const pkgOpts = {install: [], edit: []};
+
+    pkgOpts.install.push('conventional-changelog-cli');
 
     const preset = rule.content.preset;
     let presetName = '';
@@ -36,20 +36,33 @@ module.exports = async (rule, tplName) => {
     }
     else if (Object.prototype.toString.call(preset) === '[object Object]') {
         presetName = preset.name;
+
         if (!!preset.dependency) {
-            installPkg(preset.dependency, '', {
-                registry: preset.registry || ''
+            pkgOpts.install.push({
+                moduleName: preset.dependency,
+                config: {
+                    registry: preset.registry || ''
+                }
             });
         }
     }
 
-    editPkg(
-        ['scripts', 'changelog'],
-        `conventional-changelog -p ${presetName} -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md`
-    );
-    editPkg(['scripts', 'version'], 'npm run changelog');
+    pkgOpts.edit.push({
+        path: ['scripts', 'changelog'],
+        content: `conventional-changelog -p ${presetName} -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md`
+    });
+    pkgOpts.edit.push({
+        path: ['scripts', 'version'],
+        content: 'npm run changelog'
+    });
 
     if (!!rule.content.hooks) {
-        editPkg(['husky', 'hooks', rule.content.hooks], 'npm run changelog');
+        pkgOpts.install.push('husky');
+        pkgOpts.edit.push({
+            path: ['husky', 'hooks', rule.content.hooks],
+            content: 'npm run changelog'
+        });
     }
+
+    return {pkgOpts, copyOpts};
 };

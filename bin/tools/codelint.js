@@ -1,29 +1,23 @@
 /**
- * @file happy add codelint baidu
+ * @file happy add codelint -t baidu
  * @author Cyseria <xcyseria@gmail.com>
  */
 
-const fs = require('fs-extra')
+const fs = require('fs-extra');
 const path = require('path');
-const copyFile = require('../utils/copy');
-const {
-    installPkg,
-    editPkg
-} = require('../utils/pkg');
-const {getConfigFilePath, getConfigTargetPath, setConfig} = require('../utils/configOpt');
+const {getConfigSourcePath, getConfigTargetPath} = require('../utils/configOpt');
 
 // lint tool config
 const supportConfigFile = {
     // fecs 的配置放在 package.json 不能以 path 的形式
     fecs: {
-        supportFile: ['.fecsrc'],
+        supportConnfigFile: ['.fecsrc'],
         scriptsVal: 'fecs format --replace true && fecs check --level 2',
-        // 放进 package.json 文件时的配置
-        configKeys: ['fecs'],
+        configKeys: ['fecs'], // 放进 package.json 文件时的配置
         configType: 'file' // file 读取内容，path 传路径
     },
-    
-    eslint: []
+
+    eslint: {}
 };
 
 // lint-staged config: https://github.com/okonet/lint-staged#configuration
@@ -47,27 +41,25 @@ const supportLintConfigFile = ['.lintstagedrc', 'lint-staged.config.js'];
  * }
  */
 module.exports = async (rule, tplName, dir) => {
+    const copyOpts = [];
+    let pkgOpts = {install: [], edit: []};
+
     const lintTool = rule.content.lintTool || rule.content;
-    const {supportFile, scriptsVal, configKeys, configType} = supportConfigFile[lintTool]
+    const {scriptsVal} = supportConfigFile[lintTool];
 
     // install lint tools, like fecs, and copy config file
-    installPkg(lintTool);
-    const lintConfigFile = rule.content.lintConfigFile || '';
-    const sourcePath = await getConfigFilePath(lintConfigFile, tplName, supportFile);
-    // const targetPath = getConfigTargetPath(sourcePath);
-    // await copyFile(sourcePath, targetPath);
-
-
-    const configVal = await getCOnfigValue(configType, sourcePath, dir);
-    
-    // set lint tool config file
-    await setConfig(sourcePath, dir, {
-        keys: configKeys,
-        value: configVal,
-        isCopyFile: false
+    pkgOpts.install.push(lintTool);
+    pkgOpts.edit.push({
+        path: ['scripts', 'lint'],
+        content: scriptsVal
     });
 
-    editPkg(['scripts', 'lint'], scriptsVal);
+    const lintOpt = await getLintConfig(rule, tplName, dir);
+    copyOpts.push(lintOpt.copyOpt);
+    pkgOpts.install = [...pkgOpts.install, ...lintOpt.pkgOpt.install];
+    pkgOpts.edit = [...pkgOpts.edit, ...lintOpt.pkgOpt.edit];
+
+    // install husky if set hooks config
 
     // baidu, 存在 commit-msg, husky 会自动忽略, 使用临时解决方案
     // if (tplName === 'baidu' && rule.content.hooks === 'commit-msg') {
@@ -75,32 +67,84 @@ module.exports = async (rule, tplName, dir) => {
     // }
 
     if (!!rule.content.hooks) {
-        installPkg(['husky', 'lint-staged']);
-        // lint-staged config file
-        const lintStagedConfigFile = rule.content.lintStagedConfigFile || '';
-        const sourcePath = await getConfigFilePath(lintStagedConfigFile, tplName, supportLintConfigFile);
-
-        const configVal = await getCOnfigValue('file', sourcePath, dir);
-        await setConfig(sourcePath, dir, {
-            keys: ['lint-staged'],
-            value: configVal,
-            isCopyFile: false
-        });
-
-        // const targetPath = getConfigTargetPath(sourcePath);
-        // await copyFile(sourcePath, targetPath);
-        editPkg(['husky', 'hooks', rule.content.hooks], 'lint-staged');
+        const hookOpt = await getHookConfig(rule, tplName, dir);
+        copyOpts.push(hookOpt.copyOpt);
+        pkgOpts.install = [...pkgOpts.install, ...hookOpt.pkgOpt.install];
+        pkgOpts.edit = [...pkgOpts.edit, ...hookOpt.pkgOpt.edit];
     }
 
+    return {copyOpts, pkgOpts};
 };
 
-async function getCOnfigValue(configType, sourcePath, dir) {
-    if (configType === 'file') {
+// 获取默认配置信息
+async function getLintConfig(rule, tplName, customConfigDir) {
+    const copyOpt = {};
+    const pkgOpt = {install: [], edit: []};
+
+    const lintTool = rule.content.lintTool || rule.content;
+    const lintConfigFile = rule.content.lintConfigFile || '';
+    const {
+        supportConnfigFile,
+        configKeys,
+        configType
+    } = supportConfigFile[lintTool];
+
+    copyOpt.sourcePath = await getConfigSourcePath(lintConfigFile, tplName, supportConnfigFile);
+
+    if (!!customConfigDir) {
+        pkgOpt.edit.push({
+            path: configKeys,
+            content: await getConfigValue(configType, copyOpt.sourcePath, customConfigDir)
+        });
+    }
+    else {
+        copyOpt.targetPath = getConfigTargetPath(copyOpt.sourcePath);
+    }
+
+    return {pkgOpt, copyOpt};
+}
+
+// 如果使用了 hooks，安装 husky 等
+async function getHookConfig(rule, tplName, customConfigDir) {
+    // install and set husky config
+    const copyOpt = {};
+    const pkgOpt = {
+        install: ['husky', 'lint-staged'],
+        edit: [
+            {
+                path: ['husky', 'hooks', rule.content.hooks],
+                content: 'lint-staged'
+            }
+        ]
+    };
+
+    // set lint stage config
+    const lintStagedConfigFile = rule.content.lintStagedConfigFile || '';
+    copyOpt.sourcePath = await getConfigSourcePath(lintStagedConfigFile, tplName, supportLintConfigFile);
+
+    if (!!customConfigDir) {
+        pkgOpt.edit.push({
+            path: ['lint-staged'],
+            content: await getConfigValue('file', copyOpt.sourcePath, customConfigDir)
+        });
+    }
+    else {
+        copyOpt.targetPath = getConfigTargetPath(copyOpt.sourcePath);
+    }
+
+    return {pkgOpt, copyOpt};
+}
+
+// 获取 lint config 的内容，便于后续写入 package.json 中
+// 返回配置文件内容，或者配置文件路径（fecs 只能将规则写入 package 而不能提供路径）
+async function getConfigValue(type, sourcePath, dir) {
+    if (type === 'file') {
         const sourceJson = await fs.readJson(sourcePath);
         return sourceJson;
-    } else if (configType === 'path') {
+    }
+    else if (type === 'path') {
         const relativePath = !!dir ? path.relative(process.cwd(), dir) : dir;
-        const fileName = path.basename(adapterSourcePath);
+        const fileName = path.basename(sourcePath);
         return relativePath ? path.join(relativePath, fileName) : '';
     }
 }

@@ -8,8 +8,6 @@ const path = require('path');
 const inquirer = require('inquirer');
 const {tpls} = require('../../templates/config');
 const {handleErr} = require('../utils/output');
-const {editPkg} = require('../utils/pkg');
-const copyFile = require('../utils/copy');
 
 /**
  * 获取模板中符合条件的配置文件路径
@@ -18,7 +16,7 @@ const copyFile = require('../utils/copy');
  * @param {string | Array} supportFile - 支持的配置文件名称
  * @return {string} source path
  */
-exports.getConfigFilePath = async (rule, tplName, supportFile) => {
+exports.getConfigSourcePath = async (rule, tplName, supportFile) => {
     const ruleContent = rule.content || rule;
     // 1. 如果用户有提供配置则优先使用用户提供的配置文件
     if (typeof ruleContent === 'string') {
@@ -48,6 +46,7 @@ exports.getConfigFilePath = async (rule, tplName, supportFile) => {
             const tmpPath = path.resolve(__dirname, '../templates', tpl, tpls[tpl][rule.name]);
             return fs.pathExistsSync(tmpPath);
         }
+
     });
     if (existTpl.length > 0) {
         const userInput = await inquirer.prompt([
@@ -60,7 +59,8 @@ exports.getConfigFilePath = async (rule, tplName, supportFile) => {
         ]);
         const templates = userInput.templates;
         return path.resolve(__dirname, '../templates', templates, tpls[templates][rule.name]);
-    } else {
+    }
+    else {
         handleErr(`找不到 ${ruleContent} 的配置文件了啦, 请检查配置信息, tpl: ${tplName}`);
         process.exit(1);
     }
@@ -74,26 +74,4 @@ exports.getConfigFilePath = async (rule, tplName, supportFile) => {
 exports.getConfigTargetPath = sourcePath => {
     const fileName = path.basename(sourcePath);
     return path.resolve(process.cwd(), fileName);
-};
-
-/**
- *
- * @param {string} source
- * @param {string|undefined} dir
- * @param {{keys: Array, value: string, copyFile: boolean}} config
- */
-exports.setConfig = async (source, dir, config) => {
-    if (!!dir && !!config) {
-        const {keys, value, isCopyFile} = config;
-        if (isCopyFile) {
-            const fileName = path.basename(source);
-            const target = path.resolve(dir, fileName);
-            await copyFile(source, target);
-        }
-
-        editPkg(keys, value);
-    } else {
-        const target = exports.getConfigTargetPath(source);
-        await copyFile(source, target);
-    }
 };

@@ -12,6 +12,7 @@ const pkg = require('../package.json');
 const {handleSuccess, handleInfo} = require('./utils/output');
 const {tpls} = require('../templates/config');
 const {getTplFromCmd, getDirFromCmd} = require('./utils/input');
+const istallTool = require('./utils/install-tool');
 
 // 版本信息
 program.version(pkg.version, '-v, --version');
@@ -37,10 +38,9 @@ program
         });
 
         for (const rule of legalRules) {
-            const ruleName = rule;
-            const ruleContent = ruleConf[rule];
-            const curRuleCfg = {name: ruleName, content: ruleContent};
-            await require(`./tools/${ruleName}`)(curRuleCfg, tpl, dir);
+            const curRuleCfg = {name: rule, content: ruleConf[rule]};
+            const {copyOpts, pkgOpts} = await require(`./tools/${rule}`)(curRuleCfg, tpl, dir);
+            await istallTool(copyOpts, pkgOpts);
         }
         handleSuccess(`✨ finish add rules: ${legalRules.join(', ')}`);
     });
@@ -88,7 +88,8 @@ program
                     const ruleName = rule;
                     const ruleContent = template[rule];
                     const curRuleCfg = {name: ruleName, content: ruleContent};
-                    await require(`./tools/${ruleName}`)(curRuleCfg, tpl, dir);
+                    const {copyOpts, pkgOpts} = await require(`./tools/${ruleName}`)(curRuleCfg, tpl, dir);
+                    await istallTool(copyOpts, pkgOpts);
                 }
                 handleSuccess(`✨ finish add rules: ${answers.rules.join(', ')}`);
             });

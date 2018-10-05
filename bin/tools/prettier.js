@@ -1,10 +1,9 @@
 /**
- * @file prettier.js, cmd: happy add prettier -t baidu
+ * @file happy add prettier -t baidu
  * @author Cyseria <xcyseria@gmail.com>
  */
 
-const {getConfigFilePath, getConfigTargetPath} = require('../utils/configOpt');
-const copyFile = require('../utils/copy');
+const {getConfigSourcePath, getConfigTargetPath} = require('../utils/configOpt');
 
 // confugyration file, see https://prettier.io/docs/en/configuration.html
 const supportConfFile = [
@@ -22,7 +21,10 @@ const supportConfFile = [
  * @param {string}} tplName - 使用的模板名称
  */
 module.exports = async (rule, tplName) => {
-    const sourcePath = await getConfigFilePath(rule, tplName, supportConfFile);
-    const targetPath = getConfigTargetPath(sourcePath);
-    await copyFile(sourcePath, targetPath);
+    const copyOpt = {};
+    copyOpt.sourcePath = await getConfigSourcePath(rule, tplName, supportConfFile);
+    copyOpt.targetPath = getConfigTargetPath(copyOpt.sourcePath);
+    return {
+        copyOpts: [copyOpt]
+    };
 };

@@ -6,7 +6,7 @@
 exports.tpls = {
     baidu: {
         // baidu fe 规范
-        nvm: true,
+        nvm: '',
         prettier: '.prettierrc.js', // config file
         commitizen: 'cz-customizable', // adapter, required
         codelint: {
