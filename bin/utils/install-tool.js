@@ -23,30 +23,6 @@ const defaultCopyOpt = {
  */
 module.exports = async (copyOpts, pkgOpts) => {
 
-    /* packages option */
-    if (!!pkgOpts) {
-        const {install, edit} = pkgOpts;
-        for (let i = 0; i < install.length; i++) {
-            const opt = install[i];
-            if (typeof opt === 'string') {
-                await installPkg(opt);
-            }
-            else {
-                const {
-                    moduleName,
-                    exclusive,
-                    config
-                } = opt;
-                await installPkg(moduleName, exclusive, config);
-            }
-        }
-
-        for (let i = 0; i < edit.length; i++) {
-            const opt = edit[i];
-            await editPkg(opt.path, opt.content);
-        }
-    }
-
     /* file config option */
     // if has content and targetPath, write file
     // else if has targetPath and sourcepath, copy file
@@ -68,6 +44,30 @@ module.exports = async (copyOpts, pkgOpts) => {
                 await copyfile(source, target);
             }
 
+        }
+    }
+
+    /* packages option */
+    if (!!pkgOpts) {
+        const {install, edit} = pkgOpts;
+        for (let i = 0; i < install.length; i++) {
+            const opt = install[i];
+            if (typeof opt === 'string') {
+                await installPkg(opt);
+            }
+            else {
+                const {
+                    moduleName,
+                    exclusive,
+                    config
+                } = opt;
+                await installPkg(moduleName, exclusive, config);
+            }
+        }
+
+        for (let i = 0; i < edit.length; i++) {
+            const opt = edit[i];
+            await editPkg(opt.path, opt.content);
         }
     }
 
