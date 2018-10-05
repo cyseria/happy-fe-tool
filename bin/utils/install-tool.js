@@ -22,8 +22,6 @@ const defaultCopyOpt = {
  * @param {{path: Array, content: string}} packages.edit - package.json 需要编辑得字段，调用 pkg.editPkg
  */
 module.exports = async (copyOpts, pkgOpts) => {
-    console.log(copyOpts);
-    console.log(pkgOpts);
 
     /* packages option */
     if (!!pkgOpts) {

@@ -5,7 +5,11 @@
 
 const fs = require('fs-extra');
 const path = require('path');
-const {getConfigSourcePath, getConfigTargetPath} = require('../utils/configOpt');
+const {
+    getConfigSourcePath,
+    getConfigTargetPath,
+    getHuskyConfig
+} = require('../utils/configOpt');
 
 // lint tool config
 const supportConfigFile = {
@@ -36,7 +40,8 @@ const supportLintConfigFile = ['.lintstagedrc', 'lint-staged.config.js'];
         lintTool: 'fecs',
         lintConfigFile: '.fecsrc',
         lintStagedConfigFile: '.lintstagedrc',
-        hooks: 'pre-commit'
+        hooks: 'pre-commit',
+        moyuycHusky: true
     }
  * }
  */
@@ -60,12 +65,6 @@ module.exports = async (rule, tplName, dir) => {
     pkgOpts.edit = [...pkgOpts.edit, ...lintOpt.pkgOpt.edit];
 
     // install husky if set hooks config
-
-    // baidu, 存在 commit-msg, husky 会自动忽略, 使用临时解决方案
-    // if (tplName === 'baidu' && rule.content.hooks === 'commit-msg') {
-    //     // TODO: if hooks === commit-msg, use personal package
-    // }
-
     if (!!rule.content.hooks) {
         const hookOpt = await getHookConfig(rule, tplName, dir);
         copyOpts.push(hookOpt.copyOpt);
@@ -108,15 +107,17 @@ async function getLintConfig(rule, tplName, customConfigDir) {
 async function getHookConfig(rule, tplName, customConfigDir) {
     // install and set husky config
     const copyOpt = {};
+    const husky = getHuskyConfig(rule.content.moyuycHusky || '');
     const pkgOpt = {
-        install: ['husky', 'lint-staged'],
-        edit: [
-            {
-                path: ['husky', 'hooks', rule.content.hooks],
-                content: 'lint-staged'
-            }
-        ]
+        install: husky.install,
+        edit: husky.edit
     };
+
+    pkgOpt.install.push('lint-staged');
+    pkgOpt.edit.push({
+        path: ['husky', 'hooks', rule.content.hooks],
+        content: 'lint-staged'
+    });
 
     // set lint stage config
     const lintStagedConfigFile = rule.content.lintStagedConfigFile || '';

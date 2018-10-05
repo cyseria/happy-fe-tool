@@ -3,7 +3,7 @@
  * @author Cyseria <xcyseria@gmail.com>
  */
 
-const {installPkg, editPkg} = require('../utils/pkg');
+const {getHuskyConfig} = require('../utils/configOpt');
 
 /**
  * 安装 changelog 相关信息
@@ -57,7 +57,10 @@ module.exports = async (rule, tplName) => {
     });
 
     if (!!rule.content.hooks) {
-        pkgOpts.install.push('husky');
+        const husky = getHuskyConfig(rule.content.moyuycHusky || '');
+        pkgOpts.install = pkgOpts.install.concat(husky.install);
+        pkgOpts.edit = pkgOpts.edit.concat(husky.edit);
+
         pkgOpts.edit.push({
             path: ['husky', 'hooks', rule.content.hooks],
             content: 'npm run changelog'

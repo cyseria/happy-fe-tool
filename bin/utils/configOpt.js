@@ -75,3 +75,23 @@ exports.getConfigTargetPath = sourcePath => {
     const fileName = path.basename(sourcePath);
     return path.resolve(process.cwd(), fileName);
 };
+
+exports.getHuskyConfig = moyuycHusky => {
+    const pkgOpt = {install: [], edit: []};
+    // baidu, 存在 commit-msg, husky 会自动忽略, 使用临时解决方案
+    if (moyuycHusky) {
+        pkgOpt.install = ['@moyuyc/husky'];
+        pkgOpt.edit.push({
+            path: ['husky', 'installType'],
+            content: 'append'
+        });
+    }
+    else {
+        pkgOpt.install = ['husky'];
+    }
+    return pkgOpt;
+};
+
+exports.mergeConfig = () => {
+
+};
