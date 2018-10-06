@@ -6,14 +6,6 @@ const path = require('path');
 const {installPkg, editPkg} = require('./pkg');
 const {writefile, copyfile} = require('./file');
 
-const defaultCopyOpt = {
-    // use path.resolve to conect filepath and filename
-    sourcePath: '',
-    targetPath: process.cwd(),
-    filename: '',
-    content: ''
-};
-
 /**
  * install a tool from some config
  * @param {Array} copyOpts - 需要复制文件的配置, item 参照 defaultCopyOpt
@@ -22,6 +14,13 @@ const defaultCopyOpt = {
  * @param {{path: Array, content: string}} packages.edit - package.json 需要编辑得字段，调用 pkg.editPkg
  */
 module.exports = async (copyOpts, pkgOpts) => {
+    const defaultCopyOpt = {
+        // use path.resolve to conect filepath and filename
+        sourcePath: '',
+        targetPath: process.cwd(),
+        filename: '',
+        content: ''
+    };
 
     /* file config option */
     // if has content and targetPath, write file

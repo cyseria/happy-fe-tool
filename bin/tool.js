@@ -89,8 +89,6 @@ program
                     const ruleContent = template[rule];
                     const curRuleCfg = {name: ruleName, content: ruleContent};
                     const {copyOpts, pkgOpts} = await require(`./tools/${ruleName}`)(curRuleCfg, tpl, dir);
-                    console.log(copyOpts);
-                    console.log(pkgOpts);
                     await istallTool(copyOpts, pkgOpts);
                 }
                 handleSuccess(`✨ finish add rules: ${answers.rules.join(', ')}`);
