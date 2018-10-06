@@ -7,7 +7,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const inquirer = require('inquirer');
 const {tpls} = require('../../templates/config');
-const {handleErr} = require('../utils/output');
+const {handleErr} = require('./output');
 
 /**
  * 获取模板中符合条件的配置文件路径

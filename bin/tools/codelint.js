@@ -9,7 +9,7 @@ const {
     getConfigSourcePath,
     getConfigTargetPath,
     getHuskyConfig
-} = require('../utils/configOpt');
+} = require('../utils/config-opts');
 
 // lint tool config
 const supportConfigFile = {

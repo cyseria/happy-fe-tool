@@ -6,7 +6,7 @@
 const path = require('path');
 const inquirer = require('inquirer');
 
-const {getConfigSourcePath, getConfigTargetPath} = require('../utils/configOpt');
+const {getConfigSourcePath, getConfigTargetPath} = require('../utils/config-opts');
 
 // name - config file name
 const adapterConfigFile = {

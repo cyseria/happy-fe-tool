@@ -3,7 +3,7 @@
  * @author Cyseria <xcyseria@gmail.com>
  */
 
-const {getConfigSourcePath, getConfigTargetPath} = require('../utils/configOpt');
+const {getConfigSourcePath, getConfigTargetPath} = require('../utils/config-opts');
 
 // confugyration file, see https://prettier.io/docs/en/configuration.html
 const supportConfFile = [

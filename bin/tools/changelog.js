@@ -3,7 +3,7 @@
  * @author Cyseria <xcyseria@gmail.com>
  */
 
-const {getHuskyConfig} = require('../utils/configOpt');
+const {getHuskyConfig} = require('../utils/config-opts');
 
 /**
  * 安装 changelog 相关信息
