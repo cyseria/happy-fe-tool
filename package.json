@@ -32,6 +32,9 @@
         "inquirer": "^6.2.0",
         "ora": "^3.0.0"
     },
+    "jest": {
+        "collectCoverage": true
+    },
     "devDependencies": {
         "@baidu/conventional-changelog-befe": "^1.2.1",
         "commitizen": "^2.10.1",

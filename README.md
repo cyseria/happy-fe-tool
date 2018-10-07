@@ -67,6 +67,9 @@ happy add nvm
 ```bash
 # 将 .prettierrc.js 放在根目录
 happy add prettier
+
+# 配置文件写入 package.json 中
+happy add commitizen -d
 ```
 
 *prettier 主要为编辑器所用，所以配置文件最好放在跟目录喔～*

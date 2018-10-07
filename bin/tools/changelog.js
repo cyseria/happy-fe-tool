@@ -23,15 +23,15 @@ const {getHuskyConfig} = require('../utils/config-opts');
  *      }
  * }
  */
-module.exports = async (rule, tplName) => {
+module.exports = async rule => {
     const copyOpts = [];
     const pkgOpts = {install: [], edit: []};
 
     pkgOpts.install.push('conventional-changelog-cli');
 
     const preset = rule.content.preset;
-    let presetName = '';
-    if (typeof preset === 'string') {
+    let presetName = 'angular';
+    if (!!preset && typeof preset === 'string') {
         presetName = preset;
     }
     else if (Object.prototype.toString.call(preset) === '[object Object]') {
