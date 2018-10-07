@@ -88,15 +88,16 @@ async function getLintConfig(rule, tplName, customConfigDir) {
         configType
     } = supportConfigFile[lintTool];
 
-    copyOpt.sourcePath = await getConfigSourcePath(lintConfigFile, tplName, supportConnfigFile);
+    const sourcePath = await getConfigSourcePath(lintConfigFile, tplName, supportConnfigFile);
 
     if (!!customConfigDir) {
         pkgOpt.edit.push({
             path: configKeys,
-            content: await getConfigValue(configType, copyOpt.sourcePath, customConfigDir)
+            content: await getConfigValue(configType, sourcePath, customConfigDir)
         });
     }
     else {
+        copyOpt.sourcePath = sourcePath;
         copyOpt.targetPath = getConfigTargetPath(copyOpt.sourcePath);
     }
 
@@ -121,15 +122,16 @@ async function getHookConfig(rule, tplName, customConfigDir) {
 
     // set lint stage config
     const lintStagedConfigFile = rule.content.lintStagedConfigFile || '';
-    copyOpt.sourcePath = await getConfigSourcePath(lintStagedConfigFile, tplName, supportLintConfigFile);
+    const sourcePath = await getConfigSourcePath(lintStagedConfigFile, tplName, supportLintConfigFile);
 
     if (!!customConfigDir) {
         pkgOpt.edit.push({
             path: ['lint-staged'],
-            content: await getConfigValue('file', copyOpt.sourcePath, customConfigDir)
+            content: await getConfigValue('file', sourcePath, customConfigDir)
         });
     }
     else {
+        copyOpt.sourcePath = sourcePath;
         copyOpt.targetPath = getConfigTargetPath(copyOpt.sourcePath);
     }
 
