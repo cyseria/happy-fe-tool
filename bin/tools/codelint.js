@@ -3,12 +3,11 @@
  * @author Cyseria <xcyseria@gmail.com>
  */
 
-const fs = require('fs-extra');
-const path = require('path');
 const {
     getConfigSourcePath,
     getConfigTargetPath,
-    getHuskyConfig
+    getHuskyConfig,
+    getConfigValue
 } = require('../utils/config-opts');
 
 // lint tool config
@@ -31,7 +30,8 @@ const supportLintConfigFile = ['.lintstagedrc', 'lint-staged.config.js'];
  * 安装 codelint 检查用户的代码
  * 如果存在 hooks 字段, 配合 husky 和 lint-staged 来构建代码检查工作流
  * @param {{name: string, content: string|Object}} rule - 规则相关的配置
- * @param {string}} tplName - 使用的模板名称
+ * @param {string} tplName - 使用的模板名称
+ * @param {string} dir - 自定义配置路径
  *
  * @example
  * rule = {
@@ -134,18 +134,4 @@ async function getHookConfig(rule, tplName, customConfigDir) {
     }
 
     return {pkgOpt, copyOpt};
-}
-
-// 获取 lint config 的内容，便于后续写入 package.json 中
-// 返回配置文件内容，或者配置文件路径（fecs 只能将规则写入 package 而不能提供路径）
-async function getConfigValue(type, sourcePath, dir) {
-    if (type === 'file') {
-        const sourceJson = await fs.readJson(sourcePath);
-        return sourceJson;
-    }
-    else if (type === 'path') {
-        const relativePath = !!dir ? path.relative(process.cwd(), dir) : dir;
-        const fileName = path.basename(sourcePath);
-        return relativePath ? path.join(relativePath, fileName) : '';
-    }
 }

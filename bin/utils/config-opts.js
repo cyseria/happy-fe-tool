@@ -92,6 +92,22 @@ exports.getHuskyConfig = moyuycHusky => {
     return pkgOpt;
 };
 
-exports.mergeConfig = () => {
+/**
+ * 返回配置文件内容，或者配置文件路径
+ * fecs/pettie 等只能将规则写入 package, 而有一些提供路径就好，所以分开处理一下
+ * @param {string} type - 'file'/'type
+ * @param {sting} sourcePath -
+ * @param {sting|undefined} dir - 配置文件的路径
+ */
+exports.getConfigValue = async (type, sourcePath, dir) => {
+    if (type === 'file') {
+        const sourceJson = await fs.readJson(sourcePath);
+        return sourceJson;
+    }
+    else if (type === 'path') {
+        const relativePath = !!dir ? path.relative(process.cwd(), dir) : dir;
+        const fileName = path.basename(sourcePath);
+        return relativePath ? path.join(relativePath, fileName) : '';
+    }
 
 };
