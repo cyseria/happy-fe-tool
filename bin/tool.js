@@ -7,11 +7,14 @@
  */
 
 const program = require('commander');
-const inquirer = require('inquirer');
 const pkg = require('../package.json');
 const {handleSuccess, handleInfo} = require('./utils/output');
 const {tpls} = require('../templates/config');
-const {getTplFromCmd, getDirFromCmd} = require('./utils/input');
+const {
+    getTplFromCmd,
+    getDirFromCmd,
+    getRulesFromTpl
+} = require('./utils/inquirer-prompt');
 const istallTool = require('./utils/install-tool');
 
 // 版本信息
@@ -51,48 +54,18 @@ program
     .description('init project with templates rules')
     .option('-d, --dir [dir]', 'set config in package.json or custom directory instead of root (file .*rc) ')
     .action(async (tpl, cmd) => {
-        const userInput = await inquirer.prompt([
-            {
-                type: 'list',
-                name: 'tpl',
-                message: 'choose a template: ',
-                choices: Object.keys(tpls), // todo: exsit key
-                when() {
-                    return !tpl;
-                }
-            }
-        ]);
-        tpl = userInput.tpl || tpl;
-        if (!Object.keys(tpls).includes(tpl)) {
-            handleInfo(`can't find template ${tpl}, please check it and try again...`);
-        }
-
-        const template = tpls[tpl];
-        const choices = Object.keys(template).map(item => {
-            return {
-                name: item
-            };
-        });
         const dir = await getDirFromCmd(cmd); // eslint-disable-line
-        await inquirer
-            .prompt([
-                {
-                    type: 'checkbox',
-                    name: 'rules',
-                    message: 'Select the rules you want to add: ',
-                    choices: choices
-                }
-            ])
-            .then(async answers => {
-                for (const rule of answers.rules) {
-                    const ruleName = rule;
-                    const ruleContent = template[rule];
-                    const curRuleCfg = {name: ruleName, content: ruleContent};
-                    const {copyOpts, pkgOpts} = await require(`./tools/${ruleName}`)(curRuleCfg, tpl, dir);
-                    await istallTool(copyOpts, pkgOpts);
-                }
-                handleSuccess(`✨ finish add rules: ${answers.rules.join(', ')}`);
-            });
+        tpl = await getTplFromCmd(cmd, tpl);
+        const rules = await getRulesFromTpl(tpl);
+        const template = tpls[tpl];
+        for (const rule of rules) {
+            const ruleName = rule;
+            const ruleContent = template[rule];
+            const curRuleCfg = {name: ruleName, content: ruleContent};
+            const {copyOpts, pkgOpts} = await require(`./tools/${ruleName}`)(curRuleCfg, tpl, dir);
+            await istallTool(copyOpts, pkgOpts);
+        }
+        handleSuccess(`✨ finish add rules: ${rules.join(', ')}`);
     });
 
 // remove

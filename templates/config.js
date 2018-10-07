@@ -7,7 +7,7 @@ exports.tpls = {
     baidu: {
         // baidu fe 规范
         nvm: '',
-        prettier: '.prettierrc.js', // config file
+        prettier: '.prettierrc', // config file
         commitizen: 'cz-customizable', // adapter, required
         codelint: {
             lintTool: 'fecs',

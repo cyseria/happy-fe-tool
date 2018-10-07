@@ -1,6 +1,6 @@
 /**
- * @file 获取用户输入 & 一些字段的检验等
- * @author cyseria <xcyseria@gmail.com>
+ * @file 交互提示相关
+ * @author Cyseria <cyseria@gmail.com>
  */
 
 const fs = require('fs-extra');
@@ -9,11 +9,12 @@ const inquirer = require('inquirer');
 const {tpls} = require('../../templates/config');
 const {handleInfo} = require('./output');
 
-exports.getTplFromCmd = async cmd => {
-    // get config tpl
-    // if set options -y, use default
-    // if set custom tpl by -t, use custom
-    // otherwise, let user choose from config tpls
+/**
+ * 获取配置模板信息
+ * @param {object} cmd - 用户输入的命令
+ * @return {string} - eg.baidu, default "default"
+ */
+exports.getTplFromCmd = async (cmd, defaultTpl) => {
     const userInput = await inquirer.prompt([
         {
             type: 'list',
@@ -21,11 +22,11 @@ exports.getTplFromCmd = async cmd => {
             message: 'choose a template: ',
             choices: Object.keys(tpls), // todo: exsit key
             when() {
-                return !cmd.tpl && !cmd.yes;
+                return !defaultTpl && !cmd.tpl && !cmd.yes;
             }
         }
     ]);
-    let tpl = userInput.tpl || '';
+    let tpl = userInput.tpl || defaultTpl;
     if (!!cmd.tpl && Object.keys(tpls).includes(cmd.tpl)) {
         tpl = cmd.tpl;
     }
@@ -61,4 +62,33 @@ exports.getDirFromCmd = async cmd => {
     }
 
     return dir;
+};
+
+exports.getRulesFromTpl = async tpl => {
+    const template = tpls[tpl];
+    const choices = Object.keys(template).map(item => {
+        return {
+            name: item
+        };
+    });
+    const answers = await inquirer.prompt([
+        {
+            type: 'checkbox',
+            name: 'rules',
+            message: 'Select the rules you want to add: ',
+            choices: choices
+        }
+    ]);
+    return answers.rules;
+};
+
+exports.confirmFileCover = async target => {
+    const confirm = await inquirer.prompt([
+        {
+            type: 'confirm',
+            name: 'iscover',
+            message: `文件 ${path.basename(target)} 已存在, 是否覆盖?`
+        }
+    ]);
+    return confirm.iscover;
 };

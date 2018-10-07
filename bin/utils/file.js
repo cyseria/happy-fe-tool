@@ -4,30 +4,28 @@
  */
 
 const fs = require('fs-extra');
-const path = require('path');
-const inquirer = require('inquirer');
+const {confirmFileCover} = require('./inquirer-prompt');
 
 exports.writefile = async (path, content) => {
-    await checkRepeat(path);
-    fs.outputFileSync(path, content);
+    const iscover = await checkRepeat(path);
+    if (iscover) {
+        fs.outputFileSync(path, content);
+    }
+
 };
 
 exports.copyfile = async (source, target) => {
-    await checkRepeat(target);
-    await fs.copy(source, target);
+    const iscover = await checkRepeat(target);
+    if (iscover) {
+        await fs.copy(source, target);
+    }
+
 };
 
 async function checkRepeat(target) {
-    if (fs.pathExistsSync(target)) {
-        const confirm = await inquirer.prompt([
-            {
-                type: 'confirm',
-                name: 'cover',
-                message: `文件 ${path.basename(target)} 已存在, 是否覆盖?`
-            }
-        ]);
-        if (!confirm.cover) {
-            process.exit(0);
-        }
+    if (!fs.pathExistsSync(target)) {
+        return true;
     }
+
+    return await confirmFileCover(target);
 }
