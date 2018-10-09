@@ -1,3 +1,8 @@
+<a name="2.0.4"></a>
+## [2.0.4](https://github.com/cyseria/happy-fe-tool/compare/v2.0.3...v2.0.4) (2018-10-09)
+
+
+
 <a name="2.0.3"></a>
 ## [2.0.3](https://github.com/cyseria/happy-fe-tool/compare/v2.0.2...v2.0.3) (2018-10-07)
 
