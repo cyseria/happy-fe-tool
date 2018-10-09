@@ -17,19 +17,30 @@ exports.tpls = {
                 lintStagedConfigFile: '.lintstagedrc',
                 hooks: 'pre-commit'
             },
-            changelog: {
+            changelog: { // 默认添加 changelog & version script
                 preset: {
                     name: '@baidu/befe',
-                    dependency: '@baidu/conventional-changelog-befe',
+                    dependency: ['@baidu/conventional-changelog-befe', 'tranz', '@baidu/tranz-commit-icafe'],
                     registry: 'http://registry.npm.baidu-int.com'
                 },
-                hooks: 'pre-push'
+                hooks: {
+                    'pre-push': 'npm run changelog',
+                    'commit-msg': 'tranz $HUSKY_GIT_PARAMS --write'
+                }
             }
         },
         // other config
         options: {
             moyuycHusky: true, // icode 默认会注入 commit-msg 钩子，导致 husky 挂载失败，进而导致 commitlint 不触发。相关 issue https://github.com/typicode/husky/issues/336
-            defaultConfigDir: './baidu-config' // 使用 -d 的时候默认配置的路径
+            defaultConfigDir: './baidu-config', // 使用 -d 的时候默认配置的路径
+            extraConfig: { // 依赖的配置可能需要添加的一些路径信息
+                icafe: {
+                    spaceId: 'auto'
+                },
+                tranz: {
+                    processors: ['@baidu/tranz-commit-icafe']
+                }
+            }
         }
     },
     angular: {

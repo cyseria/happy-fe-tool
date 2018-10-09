@@ -26,7 +26,7 @@ describe('changelog test', () => {
         );
     });
 
-    it('should add changelog script in package.json with moyuy husky', async () => {
+    it('should add changelog script in package.json with moyuy husky and single hooks', async () => {
         const toolConfig = {
             name: 'changelog',
             content: {
@@ -67,6 +67,34 @@ describe('changelog test', () => {
                 {path: ['scripts', 'version'], content: 'npm run changelog'},
                 {path: ['husky', 'installType'], content: 'append'},
                 {path: ['husky', 'hooks', 'pre-push'], content: 'npm run changelog'}
+            ])
+        );
+    });
+
+    it('should add changelog script in package.json with moyuy husky and single hooks', async () => {
+        const toolConfig = {
+            name: 'changelog',
+            content: {
+                preset: {
+                    name: '@baidu/befe',
+                    dependency: ['@baidu/conventional-changelog-befe', 'tranz', '@baidu/tranz-commit-icafe'],
+                    registry: 'http://registry.npm.baidu-int.com'
+                },
+                hooks: {
+                    'pre-push': 'npm run changelog',
+                    'commit-msg': 'tranz $HUSKY_GIT_PARAMS --write'
+                }
+            }
+        };
+        const {pkgOpts} = await changelog(toolConfig, 'baidu', {
+            moyuycHusky: true
+        });
+        const {edit} = pkgOpts;
+
+        expect(edit).toEqual(
+            expect.arrayContaining([
+                {path: ['husky', 'hooks', 'pre-push'], content: 'npm run changelog'},
+                {path: ['husky', 'hooks', 'commit-msg'], content: 'tranz $HUSKY_GIT_PARAMS --write'}
             ])
         );
     });

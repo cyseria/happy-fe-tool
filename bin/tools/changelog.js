@@ -3,7 +3,7 @@
  * @author Cyseria <xcyseria@gmail.com>
  */
 
-const {getHuskyConfig} = require('../utils/config-opts');
+const {installHusky} = require('../utils/config-opts');
 
 /**
  * 安装 changelog 相关信息
@@ -34,18 +34,28 @@ module.exports = async (toolConfig, tplName, opts) => {
 
     const preset = toolConfig.content.preset;
     let presetName = 'angular';
-    if (!!preset && typeof preset === 'string') {
+    if (typeof preset === 'string') {
         presetName = preset;
     }
     else if (Object.prototype.toString.call(preset) === '[object Object]') {
         presetName = preset.name;
 
-        if (!!preset.dependency) {
+        if (typeof preset.dependency === 'string') {
             pkgOpts.install.push({
                 moduleName: preset.dependency,
                 config: {
                     registry: preset.registry || ''
                 }
+            });
+        }
+        else if (Array.isArray(preset.dependency)) {
+            preset.dependency.forEach(item => {
+                pkgOpts.install.push({
+                    moduleName: item,
+                    config: {
+                        registry: preset.registry || ''
+                    }
+                });
             });
         }
     }
@@ -59,16 +69,22 @@ module.exports = async (toolConfig, tplName, opts) => {
         content: 'npm run changelog'
     });
 
-    if (!!toolConfig.content.hooks) {
-        const husky = getHuskyConfig(opts.moyuycHusky || '');
-        pkgOpts.install = pkgOpts.install.concat(husky.install);
-        pkgOpts.edit = pkgOpts.edit.concat(husky.edit);
-
-        pkgOpts.edit.push({
-            path: ['husky', 'hooks', toolConfig.content.hooks],
-            content: 'npm run changelog'
-        });
+    const {hooks} = toolConfig.content;
+    if (!hooks) {
+        return {pkgOpts, copyOpts};
     }
+
+    let hooksConfig = {};
+    if (typeof hooks === 'string') {
+        hooksConfig[hooks] = 'npm run changelog';
+    }
+    else {
+        hooksConfig = hooks;
+    }
+    const huskyOpts = installHusky(hooksConfig, opts.moyuycHusky);
+
+    pkgOpts.install = [...pkgOpts.install, ...huskyOpts.install];
+    pkgOpts.edit = [...pkgOpts.edit, ...huskyOpts.edit];
 
     return {pkgOpts, copyOpts};
 };

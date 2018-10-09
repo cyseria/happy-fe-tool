@@ -76,6 +76,11 @@ exports.getConfigTargetPath = sourcePath => {
     return path.resolve(process.cwd(), fileName);
 };
 
+/**
+ * 获取安装 husky 的版本信息
+ * @param {boolean} moyuycHusky 是否使用自定义的 husky
+ * @returns {{install, edit}}
+ */
 exports.getHuskyConfig = moyuycHusky => {
     const pkgOpt = {install: [], edit: []};
     // baidu, 存在 commit-msg, husky 会自动忽略, 使用临时解决方案
@@ -90,6 +95,28 @@ exports.getHuskyConfig = moyuycHusky => {
         pkgOpt.install = ['husky'];
     }
     return pkgOpt;
+};
+
+/**
+ * 获取安装 husky 的信息
+ * @param {Object} hooksConfig - hooks 的配置信息 eg. {"pre-commit": "npm run changelog"}
+ * @param {boolean} moyuycHusky - 是否使用自定义 husky
+ */
+exports.installHusky = (hooksConfig, moyuycHusky) => {
+    // 使用 husky 来安装 git hooks
+    const {install, edit} = exports.getHuskyConfig(moyuycHusky || '');
+    if (Object.prototype.toString.call(hooksConfig) !== '[object Object]') {
+        return;
+    }
+
+    Object.keys(hooksConfig).forEach(hookname => {
+        edit.push({
+            path: ['husky', 'hooks', hookname],
+            content: hooksConfig[hookname]
+        });
+    });
+
+    return {install, edit};
 };
 
 /**

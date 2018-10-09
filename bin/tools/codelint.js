@@ -6,7 +6,7 @@
 const {
     getConfigSourcePath,
     getConfigTargetPath,
-    getHuskyConfig,
+    installHusky,
     getConfigValue
 } = require('../utils/config-opts');
 
@@ -65,7 +65,7 @@ module.exports = async (toolConfig, tplName, opts) => {
 
     // install husky if set hooks config
     if (!!toolConfig.content.hooks) {
-        const hookOpt = await getHookConfig(toolConfig, tplName, opts);
+        const hookOpt = await getHookConfig(toolConfig.content, tplName, opts);
         copyOpts.push(hookOpt.copyOpt);
         pkgOpts.install = [...pkgOpts.install, ...hookOpt.pkgOpt.install];
         pkgOpts.edit = [...pkgOpts.edit, ...hookOpt.pkgOpt.edit];
@@ -104,25 +104,27 @@ async function getLintConfig(toolConfig, tplName, opts) {
 }
 
 // 如果使用了 hooks，安装 husky 等
-async function getHookConfig(toolConfig, tplName, opts) {
+async function getHookConfig(toolContent, tplName, opts) {
+    const {hooks, lintStagedConfigFile} = toolContent;
     // install and set husky config
-    const copyOpt = {};
-    const husky = getHuskyConfig(opts.moyuycHusky || '');
+    let hooksConfig = {};
+    if (!!hooks && typeof hooks === 'string') {
+        hooksConfig[hooks] = 'lint-staged';
+    }
+    else {
+        hooksConfig = hooks;
+    }
+    const huskyOpts = installHusky(hooksConfig, opts.moyuycHusky || '');
     const pkgOpt = {
-        install: husky.install,
-        edit: husky.edit
+        install: huskyOpts.install,
+        edit: huskyOpts.edit
     };
 
     pkgOpt.install.push('lint-staged');
-    pkgOpt.edit.push({
-        path: ['husky', 'hooks', toolConfig.content.hooks],
-        content: 'lint-staged'
-    });
 
     // set lint stage config
-    const lintStagedConfigFile = toolConfig.content.lintStagedConfigFile || '';
     const sourcePath = await getConfigSourcePath(lintStagedConfigFile, tplName, supportLintConfigFile);
-
+    const copyOpt = {};
     if (!!opts.configDir) {
         pkgOpt.edit.push({
             path: ['lint-staged'],
