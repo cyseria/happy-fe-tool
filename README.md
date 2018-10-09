@@ -23,8 +23,7 @@
 happy init [tpl]
 
 # options
--c, --config <dir>  设置配置信息的路径（默认在根目录）
--p, --package 将配置信息放入 package.JSON
+-d, --config <dir>  设置配置信息的路径（默认在根目录）
 -h, --help  获取帮助信息
 ```
 
