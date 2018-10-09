@@ -13,7 +13,7 @@ const {tpls} = require('../templates/config');
 const {
     getTplFromCmd,
     getDirFromCmd,
-    getRulesFromTpl
+    getToolsFromTpl
 } = require('./utils/inquirer-prompt');
 const istallTool = require('./utils/install-tool');
 
@@ -30,9 +30,7 @@ program
     .option('-d, --dir [dir]', 'set config in package.json or custom directory instead of root (file .*rc) ')
     .action(async (tools, cmd) => {
         const tplname = await getTplFromCmd(cmd); // eslint-disable-line
-
         const tplConfig = tpls[tplname];
-
         const optsConfig = tplConfig.options || {};
         optsConfig.configDir = await getDirFromCmd(cmd.dir, optsConfig.defaultConfigDir || ''); // eslint-disable-line
 
@@ -60,18 +58,20 @@ program
     .description('init project with templates rules')
     .option('-d, --dir [dir]', 'set config in package.json or custom directory instead of root (file .*rc) ')
     .action(async (tpl, cmd) => {
-        const dir = await getDirFromCmd(cmd); // eslint-disable-line
-        tpl = await getTplFromCmd(cmd, tpl);
-        const rules = await getRulesFromTpl(tpl);
-        const template = tpls[tpl];
-        for (const rule of rules) {
-            const ruleName = rule;
-            const ruleContent = template[rule];
-            const curRuleCfg = {name: ruleName, content: ruleContent};
-            const {copyOpts, pkgOpts} = await require(`./tools/${ruleName}`)(curRuleCfg, tpl, dir);
+        const tplname = await getTplFromCmd(cmd, tpl);
+        const toolsList = await getToolsFromTpl(tplname);
+        const tplConfig = tpls[tplname];
+        const tools = tplConfig.tools || {};
+        const optsConfig = tplConfig.options || {};
+        optsConfig.configDir = await getDirFromCmd(cmd.dir, optsConfig.defaultConfigDir || ''); // eslint-disable-line
+
+        for (const toolName of toolsList) {
+            const toolContent = tools[toolName];
+            const curRuleCfg = {name: toolName, content: toolContent};
+            const {copyOpts, pkgOpts} = await require(`./tools/${toolName}`)(curRuleCfg, tpl, optsConfig);
             await istallTool(copyOpts, pkgOpts);
         }
-        handleSuccess(`✨ finish add rules: ${rules.join(', ')}`);
+        handleSuccess(`✨ finish add rules: ${toolsList.join(', ')}`);
     });
 
 // remove

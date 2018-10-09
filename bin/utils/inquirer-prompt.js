@@ -64,9 +64,9 @@ exports.getDirFromCmd = async (customDir, defaultDir = './happy-config') => {
     return dir;
 };
 
-exports.getRulesFromTpl = async tpl => {
-    const template = tpls[tpl];
-    const choices = Object.keys(template).map(item => {
+exports.getToolsFromTpl = async tpl => {
+    const toolsConfig = tpls[tpl];
+    const choices = Object.keys(toolsConfig.tools).map(item => {
         return {
             name: item
         };
@@ -74,12 +74,12 @@ exports.getRulesFromTpl = async tpl => {
     const answers = await inquirer.prompt([
         {
             type: 'checkbox',
-            name: 'rules',
-            message: 'Select the rules you want to add: ',
+            name: 'tools',
+            message: 'Select the tools you want to add: ',
             choices: choices
         }
     ]);
-    return answers.rules;
+    return answers.tools;
 };
 
 exports.confirmFileCover = async target => {

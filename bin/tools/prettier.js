@@ -34,7 +34,6 @@ module.exports = async (toolConfig, tplName, opts = {}) => {
 
     const sourcePath = await getConfigSourcePath(toolConfig, tplName, supportConfFile);
 
-    console.log(opts);
     const {configDir} = opts;
     // TODO：写进 package 里只支持 json 文件格式，需要考虑转换
     if (!!configDir) {
