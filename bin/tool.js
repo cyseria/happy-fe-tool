@@ -16,6 +16,7 @@ const {
     getToolsFromTpl
 } = require('./utils/inquirer-prompt');
 const istallTool = require('./utils/install-tool');
+const {addExtraEditPkg} = require('./utils/pkg');
 
 // 版本信息
 program.version(pkg.version, '-v, --version');
@@ -47,6 +48,7 @@ program
         for (const tool of legalTools) {
             const curToolConfig = {name: tool, content: toolConfig[tool]};
             const {copyOpts, pkgOpts} = await require(`./tools/${tool}`)(curToolConfig, tplname, optsConfig);
+            addExtraEditPkg(optsConfig.extraConfig);
             await istallTool(copyOpts, pkgOpts);
         }
         handleSuccess(`✨ finish add tools: ${legalTools.join(', ')}`);
@@ -69,6 +71,7 @@ program
             const toolContent = tools[toolName];
             const curRuleCfg = {name: toolName, content: toolContent};
             const {copyOpts, pkgOpts} = await require(`./tools/${toolName}`)(curRuleCfg, tpl, optsConfig);
+            addExtraEditPkg(optsConfig.extraConfig);
             await istallTool(copyOpts, pkgOpts);
         }
         handleSuccess(`✨ finish add rules: ${toolsList.join(', ')}`);

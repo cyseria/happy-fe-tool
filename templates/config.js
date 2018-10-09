@@ -34,9 +34,7 @@ exports.tpls = {
             moyuycHusky: true, // icode 默认会注入 commit-msg 钩子，导致 husky 挂载失败，进而导致 commitlint 不触发。相关 issue https://github.com/typicode/husky/issues/336
             defaultConfigDir: './baidu-config', // 使用 -d 的时候默认配置的路径
             extraConfig: { // 依赖的配置可能需要添加的一些路径信息
-                icafe: {
-                    spaceId: 'auto'
-                },
+                icafe: 'icafe-id',
                 tranz: {
                     processors: ['@baidu/tranz-commit-icafe']
                 }

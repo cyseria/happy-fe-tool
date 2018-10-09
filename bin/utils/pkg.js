@@ -132,6 +132,19 @@ function hasOwnProperty(obj, key) {
     return Object.prototype.hasOwnProperty.call(obj, key);
 }
 
+exports.addExtraEditPkg = obj => {
+    exports.pkgUp();
+    if (typeof obj === 'undefined') {
+        return;
+    }
+
+    const pkgPath = path.resolve(process.cwd(), 'package.json');
+    const pkgObj = {...fs.readJsonSync(pkgPath), ...obj};
+    fs.writeJsonSync(pkgPath, pkgObj, {
+        spaces: 4
+    });
+};
+
 /**
  * 合并数组并去重
  * @param {Array} arr1
