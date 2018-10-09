@@ -24,7 +24,6 @@ exports.tpls = {
                     registry: 'http://registry.npm.baidu-int.com'
                 },
                 hooks: {
-                    'pre-push': 'npm run changelog',
                     'commit-msg': 'tranz $HUSKY_GIT_PARAMS --write'
                 }
             }
