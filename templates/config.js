@@ -8,7 +8,7 @@ exports.tpls = {
     baidu: {
         // basic tools config
         tools: {
-            nvm: '',
+            nvm: 'v8.11.3',
             prettier: '.prettierrc', // config file
             commitizen: 'cz-customizable', // adapter, required
             codelint: {

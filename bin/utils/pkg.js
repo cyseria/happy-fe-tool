@@ -79,6 +79,7 @@ exports.pkgUp = async () => {
  * => {scripts: {test: 'jest'}}
  */
 exports.editPkg = (keys, value) => {
+    exports.pkgUp();
     const pkgPath = path.resolve(process.cwd(), 'package.json');
     const length = keys.length;
     const pkgObj = fs.readJsonSync(pkgPath);
@@ -149,34 +150,33 @@ function concatAndUniqueArr(arr1, arr2) {
  * @return {Array} 需要安装的 module
  */
 function getInstallModule(moduleName) {
-    const pkgPath = path.resolve(process.cwd(), 'package.json');
-    const pkgObj = fs.readJsonSync(pkgPath);
-    const checkArr = ['devDependencies', 'dependencies'];
-
     const needInstallModule = [];
     if (Array.isArray(moduleName)) {
         moduleName.map(item => {
-            if (!isRepeat(item)) {
+            if (!exports.isPkgExist(item)) {
                 needInstallModule.push(item);
             }
 
         });
     }
-    else if (typeof moduleName === 'string' && !isRepeat(moduleName)) {
+    else if (typeof moduleName === 'string' && !exports.isPkgExist(moduleName)) {
         needInstallModule.push(moduleName);
     }
 
     return needInstallModule;
-
-    // 检查需要安装的 module 是否已经存在
-    function isRepeat(module) {
-        const moduleWriteName = module.split('@')[0];
-        return checkArr.some(item => {
-            if (Object.prototype.hasOwnProperty.call(pkgObj, item)) {
-                return Object.keys(pkgObj[item]).includes(moduleWriteName);
-            }
-
-            return false;
-        });
-    }
 }
+
+// 需要安装的包是否已经存在（通过检查 package.json）
+exports.isPkgExist = modulename => {
+    const pkgPath = path.resolve(process.cwd(), 'package.json');
+    const pkgObj = fs.readJsonSync(pkgPath);
+    const checkArr = ['devDependencies', 'dependencies'];
+
+    return checkArr.some(item => {
+        if (Object.prototype.hasOwnProperty.call(pkgObj, item)) {
+            return Object.keys(pkgObj[item]).includes(modulename);
+        }
+
+        return false;
+    });
+};
