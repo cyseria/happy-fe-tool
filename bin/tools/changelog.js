@@ -7,11 +7,12 @@ const {getHuskyConfig} = require('../utils/config-opts');
 
 /**
  * 安装 changelog 相关信息
- * @param {{name: string, content: string|Object}} rule - 规则相关的配置
+ * @param {{name: string, content: string|Object}} toolConfig - 规则相关的配置
  * @param {string}} tplName - 使用的模板名称
+ * @param {{configDir: string|undefined, moyuycHusky: boolean}} opts - 其他配置
  *
  * @example
- * rule = {
+ * toolConfig = {
  *      name: 'changelog',
  *      content: {
  *          preset: {
@@ -22,14 +23,16 @@ const {getHuskyConfig} = require('../utils/config-opts');
  *          hooks: 'pre-push'
  *      }
  * }
+ *
+ * @returns {{copyOpts, pkgOpts}}
  */
-module.exports = async rule => {
+module.exports = async (toolConfig, tplName, opts) => {
     const copyOpts = [];
     const pkgOpts = {install: [], edit: []};
 
     pkgOpts.install.push('conventional-changelog-cli');
 
-    const preset = rule.content.preset;
+    const preset = toolConfig.content.preset;
     let presetName = 'angular';
     if (!!preset && typeof preset === 'string') {
         presetName = preset;
@@ -56,13 +59,13 @@ module.exports = async rule => {
         content: 'npm run changelog'
     });
 
-    if (!!rule.content.hooks) {
-        const husky = getHuskyConfig(rule.content.moyuycHusky || '');
+    if (!!toolConfig.content.hooks) {
+        const husky = getHuskyConfig(opts.moyuycHusky || '');
         pkgOpts.install = pkgOpts.install.concat(husky.install);
         pkgOpts.edit = pkgOpts.edit.concat(husky.edit);
 
         pkgOpts.edit.push({
-            path: ['husky', 'hooks', rule.content.hooks],
+            path: ['husky', 'hooks', toolConfig.content.hooks],
             content: 'npm run changelog'
         });
     }

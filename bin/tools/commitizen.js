@@ -15,11 +15,13 @@ const adapterConfigFile = {
 
 /**
  * 安装 commitizen, 和对应规则
- * @param {{name: string, content: string|Object}} rule - 规则相关的配置
+ * @param {{name: string, content: string|Object}} toolConfig - 规则相关的配置
  * @param {string} tplName - 使用的模板名称, eg. baidu
- * @param {string} dir - 配置写入的路径
+ * @param {{configDir: string|undefined, moyuycHusky: boolean}} opts - 其他配置
+ *
+ * @returns {{copyOpts, pkgOpts}}
  */
-module.exports = async (rule, tplName, dir) => {
+module.exports = async (toolConfig, tplName, opts) => {
     const copyOpts = [];
     let pkgOpts = {install: [], edit: []};
 
@@ -31,15 +33,15 @@ module.exports = async (rule, tplName, dir) => {
             message: 'choose a adapters for commitizen: ',
             choices: Object.keys(adapterConfigFile),
             when() {
-                return !rule.content || !Object.keys(adapterConfigFile).includes(rule.content);
+                return !toolConfig.content || !Object.keys(adapterConfigFile).includes(toolConfig.content);
             }
         }
     ]);
-    const adapter = userInput.adapter || rule.content;
+    const adapter = userInput.adapter || toolConfig.content;
 
     // install basic cz
     // eslint-disable-next-line
-    const cliOpt = await getCliConfig(tplName, dir, adapter);
+    const cliOpt = await getCliConfig(tplName, opts.configDir, adapter);
     copyOpts.push(cliOpt.copyOpt);
     pkgOpts.install = [...pkgOpts.install, ...cliOpt.pkgOpt.install];
     pkgOpts.edit = [...pkgOpts.edit, ...cliOpt.pkgOpt.edit];
@@ -47,7 +49,7 @@ module.exports = async (rule, tplName, dir) => {
     // install adapter
     pkgOpts.install.push(adapter);
     // eslint-disable-next-line
-    const adapterOpt = await getAdapterConfig(tplName, dir, adapter);
+    const adapterOpt = await getAdapterConfig(tplName, opts.configDir, adapter);
     copyOpts.push(adapterOpt.copyOpt);
     pkgOpts.install = [...pkgOpts.install, ...adapterOpt.pkgOpt.install];
     pkgOpts.edit = [...pkgOpts.edit, ...adapterOpt.pkgOpt.edit];

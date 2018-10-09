@@ -1,14 +1,17 @@
 const changelog = require('../../bin/tools/changelog');
 
 describe('changelog test', () => {
-    it('should add changelog script in package.json with moyuy husky', async () => {
-        const rule = {
+    it('should add changelog script in package.json without moyuy husky', async () => {
+        const toolConfig = {
             name: 'changelog',
             content: {
                 preset: 'angular'
             }
         };
-        const {pkgOpts} = await changelog(rule);
+        const opts = {
+            moyuycHusky: false
+        };
+        const {pkgOpts} = await changelog(toolConfig, 'baidu', opts);
         const {install, edit} = pkgOpts;
 
         expect(install).toEqual(expect.arrayContaining(['conventional-changelog-cli']));
@@ -24,7 +27,7 @@ describe('changelog test', () => {
     });
 
     it('should add changelog script in package.json with moyuy husky', async () => {
-        const rule = {
+        const toolConfig = {
             name: 'changelog',
             content: {
                 preset: {
@@ -32,11 +35,13 @@ describe('changelog test', () => {
                     dependency: '@baidu/conventional-changelog-befe',
                     registry: 'http://registry.npm.baidu-int.com'
                 },
-                hooks: 'pre-push',
-                moyuycHusky: true
+                hooks: 'pre-push'
             }
         };
-        const {pkgOpts} = await changelog(rule);
+        const opts = {
+            moyuycHusky: true
+        };
+        const {pkgOpts} = await changelog(toolConfig, 'baidu', opts);
         const {install, edit} = pkgOpts;
 
         expect(install).toEqual(
@@ -44,9 +49,9 @@ describe('changelog test', () => {
                 'conventional-changelog-cli',
                 '@moyuyc/husky',
                 {
-                    moduleName: rule.content.preset.dependency,
+                    moduleName: toolConfig.content.preset.dependency,
                     config: {
-                        registry: rule.content.preset.registry
+                        registry: toolConfig.content.preset.registry
                     }
                 }
             ])
@@ -56,7 +61,7 @@ describe('changelog test', () => {
                 {
                     path: ['scripts', 'changelog'],
                     content: `conventional-changelog -p ${
-                    rule.content.preset.name
+                    toolConfig.content.preset.name
                     } -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md`
                 },
                 {path: ['scripts', 'version'], content: 'npm run changelog'},

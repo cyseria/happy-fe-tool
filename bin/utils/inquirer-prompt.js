@@ -1,5 +1,5 @@
 /**
- * @file 交互提示相关
+ * @file 交互提示相关配置获取
  * @author Cyseria <cyseria@gmail.com>
  */
 
@@ -48,16 +48,16 @@ use -y by default config, or use init and follow guide`
  * @param {object} cmd - 用户输入的命令
  * @return {string|undefined} 如果是 package.json 则写进 package 的 config 里面，否则为文件夹内
  */
-exports.getDirFromCmd = async cmd => {
+exports.getDirFromCmd = async (customDir, defaultDir = './happy-config') => {
     let dir = undefined;
-    if (cmd.dir === true) {
+    if (customDir === true) {
         // 配置写进 package.json 中
-        dir = path.resolve(process.cwd(), './happy-config');
+        dir = path.resolve(process.cwd(), defaultDir);
         fs.ensureDir(dir);
     }
-    else if (!!cmd.dir) {
+    else if (!!customDir) {
         // 配置写进在自定义目录里面
-        dir = path.resolve(process.cwd(), cmd.dir);
+        dir = path.resolve(process.cwd(), customDir);
         fs.ensureDir(dir);
     }
 

@@ -20,32 +20,38 @@ const istallTool = require('./utils/install-tool');
 // 版本信息
 program.version(pkg.version, '-v, --version');
 
-// use
+// add
 // TODO: choose rule
 program
-    .command('add <rules...>')
+    .command('add <tools...>')
     .description('add single tool')
     .option('-t, --tpl <tpl>', 'set a template')
     .option('-y, --yes', 'use default template without any question')
     .option('-d, --dir [dir]', 'set config in package.json or custom directory instead of root (file .*rc) ')
-    .action(async (rules, cmd) => {
-        const tpl = await getTplFromCmd(cmd); // eslint-disable-line
-        const dir = await getDirFromCmd(cmd); // eslint-disable-line
+    .action(async (tools, cmd) => {
+        const tplname = await getTplFromCmd(cmd); // eslint-disable-line
 
-        const ruleConf = tpls[tpl];
+        const tplConfig = tpls[tplname];
+
+        const optsConfig = tplConfig.options || {};
+        optsConfig.configDir = await getDirFromCmd(cmd.dir, optsConfig.defaultConfigDir || ''); // eslint-disable-line
+
+        const toolConfig = tplConfig.tools;
 
         // 判断添加的规则是否存在
-        const legalRules = [];
-        rules.map(rule => {
-            Object.keys(ruleConf).includes(rule) ? legalRules.push(rule) : handleInfo(`no rule "${rule}", skip it...`);
+        const legalTools = [];
+        tools.map(tool => {
+            Object.keys(tplConfig.tools).includes(tool)
+                ? legalTools.push(tool)
+                : handleInfo(`no tool "${tool}", skip it...`);
         });
 
-        for (const rule of legalRules) {
-            const curRuleCfg = {name: rule, content: ruleConf[rule]};
-            const {copyOpts, pkgOpts} = await require(`./tools/${rule}`)(curRuleCfg, tpl, dir);
+        for (const tool of legalTools) {
+            const curToolConfig = {name: tool, content: toolConfig[tool]};
+            const {copyOpts, pkgOpts} = await require(`./tools/${tool}`)(curToolConfig, tplname, optsConfig);
             await istallTool(copyOpts, pkgOpts);
         }
-        handleSuccess(`✨ finish add rules: ${legalRules.join(', ')}`);
+        handleSuccess(`✨ finish add tools: ${legalTools.join(', ')}`);
     });
 
 // 项目初始化

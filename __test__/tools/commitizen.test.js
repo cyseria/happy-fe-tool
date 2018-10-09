@@ -4,11 +4,11 @@ const commitizen = require('../../bin/tools/commitizen');
 
 describe('commitizen test', () => {
     const tplName = 'baidu';
-    const dir = path.resolve(process.cwd(), 'happy-config');
-    const rule = {name: 'commitizen', content: 'cz-customizable'};
+    const toolConfig = {name: 'commitizen', content: 'cz-customizable'};
+    const opts = {};
 
     it('should copy cz-config to root dir', async () => {
-        const realResult = await commitizen(rule, tplName);
+        const realResult = await commitizen(toolConfig, tplName, opts);
         expect(realResult.copyOpts).toEqual([
             {
                 sourcePath: getSourcePath(tplName, '.czrc'),
@@ -26,7 +26,10 @@ describe('commitizen test', () => {
     });
 
     it('should copy cz-config config to package.json and default dir', async () => {
-        const realResult = await commitizen(rule, tplName, dir);
+        const opts = {
+            configDir: path.resolve(process.cwd(), 'happy-config')
+        };
+        const realResult = await commitizen(toolConfig, tplName, opts);
         const {edit} = realResult.pkgOpts;
         expect(realResult.copyOpts).toEqual([
             {},
@@ -50,8 +53,10 @@ describe('commitizen test', () => {
     });
 
     it('should copy cz-config config to custom dir', async () => {
-        const customdir = path.resolve(process.cwd(), 'custom-config');
-        const realResult = await commitizen(rule, tplName, customdir);
+        const opts = {
+            configDir: path.resolve(process.cwd(), 'custom-config')
+        };
+        const realResult = await commitizen(toolConfig, tplName, opts);
         const {edit} = realResult.pkgOpts;
         expect(realResult.copyOpts).toEqual([
             {},

@@ -27,8 +27,10 @@ describe('prettier test', () => {
     it('should set prettierrc to package.json', async () => {
         const ruleCfg = {name: 'prettier', content: '.prettierrc'};
         const tplName = 'baidu';
-        const dir = '/Users/aaa/code/demo/happy-test/happy-config';
-        const realResult = await prettier(ruleCfg, tplName, dir);
+        const opts = {
+            configDir: '/Users/aaa/code/demo/happy-test/happy-config'
+        };
+        const realResult = await prettier(ruleCfg, tplName, opts);
         const expectPkgEditReturn = {
             install: [],
             edit: [{

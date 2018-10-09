@@ -19,7 +19,8 @@ describe('codelint test', () => {
                 lintConfigFile: '.fecsrc'
             }
         };
-        const realResult = await codelint(rule, tplName);
+        const opts = {};
+        const realResult = await codelint(rule, tplName, opts);
         const edit = realResult.pkgOpts.edit[0];
         expect(realResult.copyOpts).toEqual([
             {
@@ -39,11 +40,13 @@ describe('codelint test', () => {
                 lintTool: 'fecs',
                 lintConfigFile: '.fecsrc',
                 lintStagedConfigFile: '.lintstagedrc',
-                hooks: 'pre-commit',
-                moyuycHusky: true
+                hooks: 'pre-commit'
             }
         };
-        const realResult = await codelint(rule, tplName);
+        const opts = {
+            moyuycHusky: true
+        };
+        const realResult = await codelint(rule, tplName, opts);
         const {install, edit} = realResult.pkgOpts;
 
         expect(realResult.copyOpts).toEqual([
@@ -69,7 +72,10 @@ describe('codelint test', () => {
                 lintConfigFile: '.fecsrc'
             }
         };
-        const realResult = await codelint(rule, tplName, dir);
+        const opts = {
+            configDir: path.resolve(process.cwd(), 'happy-config')
+        };
+        const realResult = await codelint(rule, tplName, opts);
         const {install, edit} = realResult.pkgOpts;
         expect(install).toEqual(['fecs']);
         expect(edit[0].path).toEqual(expect.arrayContaining(['scripts', 'lint']));

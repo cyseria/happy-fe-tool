@@ -22,18 +22,22 @@ const supportConfFile = [
 
 /**
  * 初始化 prettier
- * @param {{name: string, content: string|Object}} rule - 规则相关的配置
+ * @param {{name: string, content: string|Object}} toolConfig - 规则相关的配置
  * @param {string}} tplName - 使用的模板名称
- * @param {string} dir - 自定义配置路径
+ * @param {{configDir: string|undefined, moyuycHusky: boolean}} opts - 其他配置
+ *
+ * @returns {{copyOpts, pkgOpts}}
  */
-module.exports = async (rule, tplName, dir) => {
+module.exports = async (toolConfig, tplName, opts = {}) => {
     const copyOpt = {};
     const pkgOpts = {install: [], edit: []};
 
-    const sourcePath = await getConfigSourcePath(rule, tplName, supportConfFile);
+    const sourcePath = await getConfigSourcePath(toolConfig, tplName, supportConfFile);
 
+    console.log(opts);
+    const {configDir} = opts;
     // TODO：写进 package 里只支持 json 文件格式，需要考虑转换
-    if (!!dir) {
+    if (!!configDir) {
         pkgOpts.edit.push({
             path: ['prettier'],
             content: await getConfigValue('file', sourcePath)

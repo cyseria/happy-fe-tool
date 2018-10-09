@@ -32,9 +32,6 @@
         "inquirer": "^6.2.0",
         "ora": "^3.0.0"
     },
-    "jest": {
-        "collectCoverage": true
-    },
     "devDependencies": {
         "commitizen": "^2.10.1",
         "conventional-changelog-cli": "^2.0.5",

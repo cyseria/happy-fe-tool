@@ -6,14 +6,15 @@
 
 /**
  * 初始化 nvm
- * @param {{name: string, content: string|Object}} rule - 规则相关的配置
- * @param {string}} tplName - 使用的模板名称
+ * @param {{name: 'nvm', content: string}} toolConfig - 规则相关的配置
+ *
+ * @example {name: 'nvm', content: 'v8.10.1'}
  */
-module.exports = rule => {
+module.exports = toolConfig => {
     const copyOpt = {};
     // if no config, use current node version
-    if (!!rule.content) {
-        copyOpt.content = rule.content;
+    if (!!toolConfig.content) {
+        copyOpt.content = toolConfig.content;
     }
     else {
         copyOpt.content = process.version;
