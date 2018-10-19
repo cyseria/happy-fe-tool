@@ -10,14 +10,23 @@ exports.tpls = {
         tools: {
             nvm: 'v8.11.3',
             prettier: '.prettierrc', // config file
-            commitizen: 'cz-customizable', // adapter, required
+            commitizen: {
+                adapter: '@baidu/cz-conventional-changelog-befe',
+                registry: 'http://registry.npm.baidu-int.com',
+                // 设置需要进行的配置 config/adapter/{xxx}
+                config: {
+                    isDesc: true,
+                    iql: '负责人 in (currentUser)'
+                }
+            }, // adapter, required
             codelint: {
                 lintTool: 'fecs',
                 lintConfigFile: '.fecsrc',
                 lintStagedConfigFile: '.lintstagedrc',
                 hooks: 'pre-commit'
             },
-            changelog: { // 默认添加 changelog & version script
+            changelog: {
+                // 默认添加 changelog & version script
                 preset: {
                     name: '@baidu/befe',
                     dependency: ['@baidu/conventional-changelog-befe', 'tranz', '@baidu/tranz-commit-icafe'],
@@ -32,7 +41,8 @@ exports.tpls = {
         options: {
             moyuycHusky: true, // icode 默认会注入 commit-msg 钩子，导致 husky 挂载失败，进而导致 commitlint 不触发。相关 issue https://github.com/typicode/husky/issues/336
             defaultConfigDir: './baidu-config', // 使用 -d 的时候默认配置的路径
-            extraConfig: { // 依赖的配置可能需要添加的一些路径信息
+            extraConfig: {
+                // 依赖的配置可能需要添加的一些路径信息
                 icafe: 'icafe-id',
                 tranz: {
                     processors: ['@baidu/tranz-commit-icafe']
@@ -45,7 +55,10 @@ exports.tpls = {
         tools: {
             nvm: '',
             prettier: '.prettierrc',
-            commitizen: 'cz-customizable',
+            commitizen: {
+                adapter: 'cz-customizable',
+                configFile: '.cz-config.js'
+            },
             changelog: {
                 preset: 'angular',
                 hooks: 'pre-push'

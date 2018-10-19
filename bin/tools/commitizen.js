@@ -4,9 +4,16 @@
  */
 
 const path = require('path');
-const inquirer = require('inquirer');
-
 const {getConfigSourcePath, getConfigTargetPath} = require('../utils/config-opts');
+
+/**
+ * example config
+ commitizen: true
+ commitizen: {
+    adapter: 'cz-customizable',
+    config: {isDesc: true, xxx}
+ }
+ */
 
 // name - config file name
 const adapterConfigFile = {
@@ -25,36 +32,26 @@ module.exports = async (toolConfig, tplName, opts) => {
     const copyOpts = [];
     let pkgOpts = {install: [], edit: []};
 
-    // get cli's adapter, if commitizen config is error, let user choose
-    const userInput = await inquirer.prompt([
-        {
-            type: 'list',
-            name: 'adapter',
-            message: 'choose a adapters for commitizen: ',
-            choices: Object.keys(adapterConfigFile),
-            when() {
-                return !toolConfig.content || !Object.keys(adapterConfigFile).includes(toolConfig.content);
-            }
-        }
-    ]);
-    const adapter = userInput.adapter || toolConfig.content;
+    const {content} = toolConfig;
+    const adapter = content === true ? null : content.adapter;
 
-    // install basic cz
+    /* install basic cz */
     // eslint-disable-next-line
     const cliOpt = await getCliConfig(tplName, opts.configDir, adapter);
     copyOpts.push(cliOpt.copyOpt);
     pkgOpts.install = [...pkgOpts.install, ...cliOpt.pkgOpt.install];
     pkgOpts.edit = [...pkgOpts.edit, ...cliOpt.pkgOpt.edit];
 
-    // install adapter
-    pkgOpts.install.push(adapter);
-    // eslint-disable-next-line
-    const adapterOpt = await getAdapterConfig(tplName, opts.configDir, adapter);
-    copyOpts.push(adapterOpt.copyOpt);
-    pkgOpts.install = [...pkgOpts.install, ...adapterOpt.pkgOpt.install];
-    pkgOpts.edit = [...pkgOpts.edit, ...adapterOpt.pkgOpt.edit];
+    /* install adapter */
+    if (!!adapter) {
+        // eslint-disable-next-line
+        const adapterOpt = await getAdapterConfig(tplName, opts.configDir, content);
+        copyOpts.push(adapterOpt.copyOpt);
+        pkgOpts.install = [...pkgOpts.install, ...adapterOpt.pkgOpt.install];
+        pkgOpts.edit = [...pkgOpts.edit, ...adapterOpt.pkgOpt.edit];
+    }
 
-    // add `npm run commit` in pkg
+    /* add `npm run commit` in pkg */
     pkgOpts.edit.push({
         path: ['scripts', 'commit'],
         content: 'git-cz'
@@ -73,20 +70,12 @@ module.exports = async (toolConfig, tplName, opts) => {
 async function getCliConfig(tplName, customConfigDir, adapter) {
     const copyOpt = {};
     const pkgOpt = {install: [], edit: []};
-    const cliConfigFileName = '.czrc';
     pkgOpt.install.push('commitizen');
 
-    if (!!customConfigDir) {
-        pkgOpt.edit.push({
-            path: ['config', 'commitizen', 'path'],
-            content: `./node_modules/${adapter}`
-        });
-    }
-    else {
-        copyOpt.sourcePath = await getConfigSourcePath('.czrc', tplName, cliConfigFileName);
-        copyOpt.targetPath = getConfigTargetPath(copyOpt.sourcePath);
-    }
-
+    pkgOpt.edit.push({
+        path: ['config', 'commitizen', 'path'],
+        content: `./node_modules/${adapter}`
+    });
     return {pkgOpt, copyOpt};
 }
 
@@ -94,28 +83,53 @@ async function getCliConfig(tplName, customConfigDir, adapter) {
  * get cz adapter's config
  * @param {string} tplName
  * @param {string} customConfigDir
- * @param {string} adapter
+ * @param {Object} content
  * if user set custom config path, set config to custom config
  * otherwise, copy config to root dir
  */
-async function getAdapterConfig(tplName, customConfigDir, adapter) {
+async function getAdapterConfig(tplName, customConfigDir, content) {
     const copyOpt = {};
     const pkgOpt = {install: [], edit: []};
+    const {
+        adapter,
+        registry,
+        config,
+        configFile
+    } = content;
 
-    const fileName = adapterConfigFile[adapter];
-    copyOpt.sourcePath = await getConfigSourcePath(fileName, tplName, adapterConfigFile);
+    pkgOpt.install.push({
+        moduleName: adapter,
+        config: {
+            registry: registry || ''
+        }
+    });
 
-    if (!!customConfigDir) {
-        copyOpt.targetPath = path.resolve(customConfigDir, fileName);
+    // 文件类型的配置
+    if (!!configFile) {
+        const fileName = configFile;
+        copyOpt.sourcePath = await getConfigSourcePath(fileName, tplName, adapterConfigFile[adapter]);
+        if (!!customConfigDir) {
+            copyOpt.targetPath = path.resolve(customConfigDir, fileName);
 
-        const relativePath = path.relative(process.cwd(), customConfigDir);
-        pkgOpt.edit.push({
-            path: ['config', adapter, 'config'],
-            content: relativePath ? path.join(relativePath, fileName) : ''
-        });
+            const relativePath = path.relative(process.cwd(), customConfigDir);
+            pkgOpt.edit.push({
+                path: ['config', adapter, 'config'], // 这里 cz-customizable 用的 config 字段，其他用的啥有待确认
+                content: relativePath ? path.join(relativePath, fileName) : ''
+            });
+        }
+        else {
+            copyOpt.targetPath = getConfigTargetPath(copyOpt.sourcePath);
+        }
     }
-    else {
-        copyOpt.targetPath = getConfigTargetPath(copyOpt.sourcePath);
+
+    // 在 package 里面修改的配置
+    if (!!config) {
+        pkgOpt.edit = Object.keys(config).map(key => {
+            return {
+                path: ['config', adapter, key],
+                content: config[key]
+            };
+        });
     }
 
     return {pkgOpt, copyOpt};
