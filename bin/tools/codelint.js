@@ -15,7 +15,7 @@ const supportConfigFile = {
     // fecs 的配置放在 package.json 不能以 path 的形式
     fecs: {
         supportConnfigFile: ['.fecsrc'],
-        scriptsVal: 'fecs format --replace true && fecs check --level 2',
+        scriptsVal: 'fecs format --replace true && fecs check --level=2 --reporter=baidu --rule',
         configKeys: ['fecs'], // 放进 package.json 文件时的配置
         configType: 'file' // file 读取内容，path 传路径
     },

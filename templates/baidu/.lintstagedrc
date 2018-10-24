@@ -1,3 +1,3 @@
 {
-    "*.{js, scss, css, html}": ["fecs format --replace true", "fecs check --level 2", "git add"]
+    "*.{js, scss, css, html}": ["fecs format --replace true", "fecs check --level=2 --reporter=baidu --rule", "git add"]
 }

@@ -140,7 +140,7 @@ happy add codelint -d
 
 ```javascript
 "scripts": {
-    "lint": "fecs format --replace true && fecs check --level 2"
+    "lint": "fecs format --replace true && fecs check --level=2 --reporter=baidu --rule"
 },
 ```
 
@@ -156,7 +156,7 @@ happy add codelint -d
 
 # .lintstagedrc
 {
-    "*.{js, scss, css, html}": ["fecs format --replace true", "fecs check --level 2", "git add"]
+    "*.{js, scss, css, html}": ["fecs format --replace true", "fecs check --level=2 --reporter=baidu --rule", "git add"]
 }
 ```
 
